@@ -48,8 +48,102 @@
 * to start jupyter-lab we run `jupyter-lab` and it runs as a webAPP at 'http://localhost:8888/lab'
 * we create a notebook and a textfile as py. we run the python script int erminal with `python3 myCode/test.py`
 
-## Section 2- NumPy and Image basics
+## Section 2- NumPy and Image Basics
 
 ### Lecture 5 - Introduction to Numpy and Image Section
 
+* Section Goals
+	* Understand how to work with basics in NumPy
+	* understand how to create arrays
+	* slice and index elements from arrays
+	* open and display images with numpy
+
+### Lecture 6 - NumPy Arrays
+
+* we `import numpy as np`
+* we define a list `mylist = [1,2,3]`
+* we cast it to an array `myarray = np.array(mylist)`
+* for docs shift+tab
+* we can generate an evenly spaced array with `np.arange(0,10)` if we want to add a step size of 2 `np.arange(0,10,2)`
+* to create multidimensional array we have many options
+* to create a 2d 585 matrix of 0s `np.zeros(shape=(5,5))` it is rowsxcols.
+* for 1s we use np.ones() we can omis shapes np.ones((2,4)) is the same
+* to create random numbers i first have to seed the rng. `np.random.seed(101)` to seed with 101
+* after i seed i can generate random ints and feed them in an array `arr = np.random.randint(0.100,10)` makes an array size 10 with random insts between 0 and 99
+* seed is of paramount importance as it leads to generating the same random nums
+* to find the max num in an array `arr.max()` to get the location (index) of the max `arr.argmax()` same holds for min
+* to get the average val of an array `arr.mean()`
+* to reshape arrays: i can get the shape of an array with `arr.shape` for arr its (10,). if i do `arr.reshape(2,5)` i get the array in 2x5 shape... total number of elements must be equal or i get an error
+* i make a 10x10 ordered array `mat=np.arange(0,100).reshape(10,10)` to get an element by index
+```
+row=0
+col=1
+mat[row,col]
+```
+* this is called indexing. to gt multiple eleemnts by index its called slicing `mat[0:row,0:col]` start(incl):end(excl):step for everything [:]
+* to slice a column `mat[:,1].reshape(10,1)` to slice a row `mat[0,:]`
+* to grab a submatrix `mat[:3,:3]`
+* to copy an array `mynewmat = mat.copy()`
+
+### Lecture 7 - What is an Image?
+
+* each image can be represented as an array
+* in grayscale images the color is represented as a float between 0 and 1 (white = 0 black=1)
+* often default images have vals between 0 and 255 8bit resolution
+* we can always divide the integer by max val to normalize between 0-1
+* what about color images? colorimages can be represented as a comination of Red,Green Blue (additive dcolor mix)
+* RGB allows to produce a range of colours (color triangle)
+* later in course we will learn about alternative colour mappings that can be applied to images
+* each color channel has intensity val 0-255
+* when we read a color image with computers or python. the image has 3 dimansions and is a 3d matrix of size (W,H,3) e.g (1280,720,3) 1280 pixel width, 720 pixels height, 3 color channels
+* computer does not know about colours. only intensity vals. much like greyscale
+* the user has to dictate which channel is for which color.
+* each  channel alone is essentially  a grayscale image
+
+### Lecture 8 - Images and NumPy
+
+* we import numpy
+* we install matplotlib `conda install matplotlib`
+* we import pyplot and make it inline
+```
+import matplotlib.pyplot as plt
+%matplotlib inline
+```
+* we install pillow `conda install -c anaconda pillow`
+* we import Image pillow lib `from PIL import Image`
+* Image function allows us to open up images and transform them in an array
+* we use it to open an image `pic = Image.open('../DATA/00-puppy.jpg')` 
+* if i run `pic` in jupyter i see the pic
+* `type(pic)` gives 'PIL.JpegImagePlugin.JpegImageFile'  . munpy cant process it. to convert it to an array i use `pic_arr = np.asarray(pic)`
+* `pic_arr.shape` gives (1300, 1950, 3). i can show the image from the array `plt.imshow(pic_arr)`
+* i can show first channel as grayscale `plt.imshow(pic_arr[:,:,0],cmap='gray')`
+```
+pic_red = pic_arr.copy()
+pic_red[:,:,0]
+```
+* the red channel by default has a viridis colormap becaus the vals are 0-255. we have to normalize by dividing by 255 to have 0-1 scale (greyscale) [colorscales](https://matplotlib.org/examples/color/colormaps_reference.html)
+* lighter color in grayscale is closer to 255 (or 1.) so higher color contribution in pixel
+* i will zero out green and blue channel channel `pic_red[:,:,1:] =0` and show it `plt.imshow(pic_red)`
+* pic red has still 3 channels they are just zeroed out
+
+### Lecture 9 - Numpy and Image Assesment Test
+
+* we do the test
+* fill an empty array with vals
+```
+arr=np.empty(shape=(5,5))
+arr.fill(10)
+```
+* or
+```
+arr,np.ones((5,5))
+arr*10
+```
+
+## Section 3 - Image basics with OpenCV
+
+### Lecture 11 - Introduction to images and OpenCV Basics
+
 * 
+
+### Lecture 12 - Opening Image Files in a notebook
