@@ -47,3 +47,9 @@
 * to activate env `source activate python-cvcourse` to deactivate `source deactivate`
 * to start jupyter-lab we run `jupyter-lab` and it runs as a webAPP at 'http://localhost:8888/lab'
 * we create a notebook and a textfile as py. we run the python script int erminal with `python3 myCode/test.py`
+
+## Section 2- NumPy and Image basics
+
+### Lecture 5 - Introduction to Numpy and Image Section
+
+* 
