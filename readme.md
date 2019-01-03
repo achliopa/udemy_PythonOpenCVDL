@@ -235,4 +235,21 @@ we puth th imshow in a while loop to be able to brake on keystroke we use the cr
 
 ### Lecture 14 - Drawing on Images - Part One - Basic Shapes
 
-* 
+* we make a new notebook and do the basic imports
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+```
+* we create a blank image (all zeroes) in numpy `bblank_img = np.zeros(shape=(512,512,3),dtype=np.int16)` we spec the datatype to be int16
+* we imshow it and its pureblack
+* we will use opencv to draw on the image a rectangle `cv2.rectangle(blank_img,pt1=(384,0),pt2=(510,150),color=(0,255,0),thickness=10)` the code draws a rectangle specing 2 vertexes with two opposite edge points. also we spec the color and the thickness . the definition of the points is in OpenCV style W,H. the method alters the passed image so if we replot it with imshow we see the overlay rect
+* outline starts at the specked points so in our example it goes out of bounds
+* if i run multiple times the method it overlays multiple rects
+* the same holds for squares
+* for circles `cv2.circle(img=blank_img,center=(100,100),radius=50,color=(255,0,0),thickness=8)`
+* to fill a shape witht he color we set thickness to -1
+* to draw a line `cv2.line(blank_img,pt1=(0,0),pt2=(512,512),color=(0,255,255),thickness=5)`
+
+### Lecture 15 - Drawing on Images - Part 2 - Texts and Polygons
