@@ -144,6 +144,46 @@ arr*10
 
 ### Lecture 11 - Introduction to images and OpenCV Basics
 
-* 
+* we will learn how to use OpenCV lib
+* how to open images and draw on them
+* OpenCV (Open Source Computer Vision) is a library of programming functions mainly aimed at real-time computer vision
+* Created by Intel at 1999, is written in C++. Here we will use its Python bindings
+* It contains many popular algorithms for computer vision, including object detection and tracking algorithms
+* Section Goals
+	* open inage files with OpenCV in a notebook and in py script
+	* Draw simple geometries on images
+	* Direclty interact with an image through callbacks
 
 ### Lecture 12 - Opening Image Files in a notebook
+
+* we asaw how to use the PIL(PythonImagingLibrary) to open images and trasform them to arrays with numpy and use matplotlib to display the array as image
+* we will use OpenCV + Matplotlib to open and display an image as array
+* we do the usual imports
+```
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+```
+* we import openCV lib `import cv2`
+* we open the image with cv `img = cv2.imread('../DATA/00-puppy.jpg')` the type is `type(img)` is numpy.ndarray
+* if i open wrong path i get no error but he type is NoneType
+* the `img.shape` is (1300,1950,3) so 3 channels
+* if i `plt.imshow(img)` the image is of diff color because in OpenCV color channels have differt order
+* Matplotlib expects RED, GREEN, BLUE but openCV encodes them BLUE,GREEN,RED
+* we need to fix the order before displaying with matplotlib. cv can do that using the cvtColor function `cv2.cvtColor(img,cv2.COLOR_BGR2RGB)` cv2 has a lot of colorplane transformations available
+* i can avoid the post transofrmation . i can apply it when i read the image with opencv e.g to show it as grayscale `img_gray = cv2.imread('../DATA/00-puppy.jpg',cv2.IMREAD_GRAYSCALE)` if we plot it we see the viridis cmap as the vals are integers (even if i normalize them its stil viridis) to solve it i change cmap `plt.imshow(img_gray,cmap='gray')`
+* to resize images we can use openCV `new_img = cv2.resize(fixed_img,(1000,400))` th enumbers i enter are (COl,ROW) or (WIDTH,HEIGHT) if i dont keep aspect ratio the image is transformed. the arguments are swapped in comparizon with numpy order
+* cv allows resizing keeping the aspect ratio
+```
+w_ratio = 0.1
+h_ratio = 0.1
+new2_img = cv2.resize(fixed_img,(0,0),fixed_img,w_ratio,h_ratio)
+```
+* to flip images `fl_img = cv2.flip(fixed_img,0)` along the horizontal axis, use 1 to flipalong the horizontal. use -1 to combine both flips
+* to write an image (nupy array) maybe a generated one to anew file i use `cv2.imwrite('NEW FILEPATH',fl_img)` the filetype code i use determines the filetype. beware that as OpenCV does the save it saves them in BGR order 
+* to play with canopy space in notebook to display larger images we do matplotlib scripting
+```
+fig = plt.figure(figsize=(10,8))
+ax = fig.add_subplot(111)
+ax.imshow(fix_img)
+```
