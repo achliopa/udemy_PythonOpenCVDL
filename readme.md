@@ -267,3 +267,54 @@ cv2.putText(blank_img,text="Hello",org=(10,500),fontFace=font,fontScale=4,color=
 * to draw the polyline `cv2.polylines(blank_img,[pts],isClosed=True,color=(255,0,0),thickness=5)` we pass the points as array, also we spec if we want to close the polyline
 
 ### Lecture 16 - Direct Drawing on an Image with a Mouse - Part One
+
+* we can use CallBacks to connect Images to event functions with OpenCV
+* this allows us to directly interact with images (and later on videos)
+* In this 2 part lecture we will cover
+	* Conecting Callback Functions
+	* Adding Functionality through Event Choices
+	* Dragging the Mouse for Functionality
+* we will run them as python script
+* we import libs cv2 and numpy
+* we create a blank image `img = np.zeros((512,512,3),np.int8)`
+* int8 results in grayish color
+* we add the while loop
+```
+while True:
+    cv2.imshow('Blank',img)
+    if cv2.waitKey(20) & 0xFF == 27:
+        break
+cv2.destroyAllWindows()
+```
+* we define a callbakc function
+```
+def draw_circle(event,x,y,flags,param):
+    pass
+```
+* and we connect it witha Mouseevent to the image 
+```
+cv2.namedWindow(winname='Blank')
+cv2.setMouseCallback('Blank',draw_circle)
+
+```
+* the conenction is done on the imShow name (window name)
+* the params  passed in the callback have to do with the event
+	* x,y is the position
+	* event contains the type of event
+* i mod the callback to draw a circle of specific  size and color centered at the position i click using the event 'cv2.EVENT_LBUTTONDOWN'
+```
+def draw_circle(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(img,(x,y),100,(0,255,0),-1)
+```
+* we remove np.int8 to solve the grayish look
+
+### Lecture 17 - Direct Drawing on an Image with a Mouse - Part Two
+
+* we mod the callback adding an elif to listen to a RButton down event drawing a circleof another color (red) beware that it is BLUE,RED,GREEN
+```
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        cv2.circle(img,(x,y),100,(0,0,255),-1)
+```
+
+### Lecture 18 - Direct Drawing on an Image with a Mouse - Part Three
