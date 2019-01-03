@@ -187,3 +187,52 @@ fig = plt.figure(figsize=(10,8))
 ax = fig.add_subplot(111)
 ax.imshow(fix_img)
 ```
+
+### Lecture 13 - Opening Image files with OpenCV
+
+* we will open images with OpenCV using python scripts.
+* in this lecture we will use OpenCV to display images in their own separate window outside of jupyter
+* for more complex video and image analysis, we will need to display outside of jupyter
+* while we often will just use plt.imshow() to display images inside of a notebook. sometimes we want to use OpenCV on its own to display images in their own window
+* Often Jupyter (being browser based) interferes with closing teh window
+* Many times  JupyterLab can display a new window with no issues, but the kernel crashes when the OpenCV window is closed
+* To fix this issue if running OpenCV from notebook. restart the kernel
+* this is an issue of MAcOS and linux
+* it better to run the code in a .py script if the issue makes our work difficult.
+* we ll see how to open and display images direclty with OpenCV (no matplotlib) in the notebook and in a script
+* we start with a notebook
+* we do some fixes first to run opencv window in lunux
+```
+Being in the course's conda env source activate python-cvcourse
+
+conda remove opencv
+conda remove py-opencv
+conda update conda
+conda upgrade pip
+conda install jupyter # dont think it matters but followed instructors advice
+then use pip to install opencv pip install opencv-contrib-python (i tried this version as it contains additional libs, I suppose pip install opencv-python will also do the trick)
+```
+* then we use imshow from opencv to invoke the window 
+```
+import cv2
+img = cv2.imread('../DATA/00-puppy.jpg')
+cv2.imshow('Puppy',img)
+cv2.waitKey()
+```
+* the image is large and we cannot resize it as opencv displays on same pixel dimensions. so depending on teh screen  analysis this  might cause issues
+* we write a python script to do the same job
+```
+import cv2
+img = cv2.imread('../DATA/00-puppy.jpg')
+while True:
+    cv2.imshow('Puppy',img)
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
+cv2.destroyAllWindows()
+```
+we puth th imshow in a while loop to be able to brake on keystroke we use the cryptic `cv2.waitKey(1) & 0xFF == 27:` that means IF we ve waited atleast 1ms and weve pressed the ESC key
+* instead of 27 (ESC) we can use `ord('q')` to quit with 'q'
+
+### Lecture 14 - Drawing on Images - Part One - Basic Shapes
+
+* 
