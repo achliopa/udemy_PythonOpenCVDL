@@ -253,3 +253,17 @@ import matplotlib.pyplot as plt
 * to draw a line `cv2.line(blank_img,pt1=(0,0),pt2=(512,512),color=(0,255,255),thickness=5)`
 
 ### Lecture 15 - Drawing on Images - Part 2 - Texts and Polygons
+
+* to write text
+```
+font = cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(blank_img,text="Hello",org=(10,500),fontFace=font,fontScale=4,color=(255,255,255),thickness=3,lineType=cv2.LINE_AA)
+```
+* we selecta cv2 font, the bottom left corner, the size, color,thickness and linetype
+* to draw a polygon with opencv we have first to decide on the vertices alist of pairs as nested arrays with x,y coordinates. the dtype has to be the same as the image `vertices = np.array([[100,300], [200,200], [400,300], [200,400]],dtype=np.int32)`
+* the shape of the vertices is (4,2) so 2D. opencv wants it 3D
+* the conversion we do is `pts = vertices.reshape((-1,1,2))` and the `pts.shape` is (4,1,2)
+* we do this for the color channels
+* to draw the polyline `cv2.polylines(blank_img,[pts],isClosed=True,color=(255,0,0),thickness=5)` we pass the points as array, also we spec if we want to close the polyline
+
+### Lecture 16 - Direct Drawing on an Image with a Mouse - Part One
