@@ -358,4 +358,40 @@ def draw_rectangle(event,x,y,flags,param):
 
 ### Lecture 21 - Introduction to Image Processing
 
+* Section Goals
+	* Learn various image processing operations
+	* Perform image operations such as Smoothing,Blurring,Morphological Operations
+	* Grab properties such as color spaces and histograms
+
+### Lecture 22 - Color Mappings
+
+* so far we ve only worked with RGB color spaces, in RGB coding, colors are modeled as a combination or Red,Green and Blue
+* in the 1970s HSL (hue,saturation,lightness) and HSV (hue,saturation,value) were developed as alternative color models
+* HSV and HSL are more closely aligned with the way human vision actually perceives color
+* while in the course we will deal more with RGB images, it goog to know how to convert to HSL and HSV colorspaces
+* RGB colorspace represents a color as a combo of R G and B (color cube)
+* HSL is perceived as cylinder (hue is the angle, saturation is the distance from center, lightness the height)
+	* H= actual color, Saturation=Intensity of color, Lightness=How dark it is
+	* bottom pure black, top pure wight, center line = grayscale
+* HSV is represented as cylinder. instead of lightness we have value (black->full color)
+	* top center = white
+* this lecture will be a quick review on using the cvtColor func to change colorspaces
+* we wont have to deal with HSL or HSV based color images for the rest of the course
+* we use a notebook to display an image at default cv2 BGR colorspace
+```
+import cv2
+import matplotlib.pyplot as plt
+%matplotlib inline
+img = cv2.imread('../DATA/00-puppy.jpg')
+plt.imshow(img)
+```
+* we fix it converting to RGB
+```
+img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+plt.imshow(img)
+```
+* to convert it at HSV `img = cv2.cvtColor(img,cv2.COLOR_RGB2HSV)` the image is strange because color channels have RGB vals and are displayed as HSV. we can use cv2.COLOR_RGB2HLS for HLS
+
+### Lecture 23 - Blending and pasting Images
+
 * 
