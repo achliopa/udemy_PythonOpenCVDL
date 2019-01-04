@@ -464,4 +464,33 @@ large_img[y_offset:y_end,x_offset:x_end] = small_img
 
 ### Lecture 25 - Image Thresholding
 
-* 
+* In some CV applications it is often necessary to convert color images to grayscale, since only edges and up being important
+* Similarly, some apps only require a binary image showing only general shapes
+* Thresholding is fundamentally a very simple method of segmenting an image into different parts
+* THresholding will convert an image to consist of only two values, white or  black
+* what we actually do is convert a color image to binary (3channels -> 1channel, unit8 => binary)
+* We ll dive in syntax anoptions for thresholding with OpenCV
+* we do usual imports and read an image of a rainbow `img = cv2.imread('../DATA/rainbow.jpg')`
+* we ll see some thresholding options
+* read in a color image as grayscale `img = cv2.imread('../DATA/rainbow.jpg',0)` simply pass a 0
+* use **cv2.thresholding** passing options thresh and maxval and type of threshold. so any val <thresh is converted to 0 each val >thresh to maxval. usually we use the halfway point. foa grayscale image th typical is `ret,thresh1 = cv2.threshold(img,t27,255,cv2.THRESH_BINARY)` ret is the cutoff value and thresh1 is thresh1 is the actual image thresholded
+* we can play with threshold types like THRESH_BINARY_INV (inverse) THRESH_TRUNC (if val is over threshold it replaces it with threshold, if its lower it keeps the original val) THRESH_TOZERO (keep original if >thresh otherwise 0)  (see OpenCV docs for more)
+* we will do a real world example reading in a crossword page image `img = cv2.imread('../DATA/crossword.jpg',0)` 
+* we set afunction to display pyplot larger and use it insteat of plt.imshow
+```
+def show_pic(img):
+    fig = plt.figure(figsize=(15,15))
+    ax = fig.add_subplot(111)
+    ax.imshow(img,cmap='gray')
+```
+* we see in the image that apart from black letters there is gray noise. we wold like to say: if there is ink its black if not white. we ll play with binary threshold
+* we do simple binary in middle `ret,th1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)`. the result is not perfect as we loose quality. we can play with types or level. level is not very helpful. THRESH_OTSU and TRIANGLE do a good job
+* a better approach is the adaptive trheshold as it auto adapts the threshold based on pixel and neighboring pixels `th2 = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,8)` its params:
+	* srcimage
+	* maxval
+	* adaptive threshold type (algorithm) GAUSSIAN or MEAN
+	* threshold type (the actual threshold)
+	* neghbour size for adaptibe threh algo (texel) only odd nums
+	* the C val to be subtr. from sum (see docs)
+* we usually play with block size and c val (2 last params)
+* we can now start apply multiple methods like blending adaptive thresholded image with binary thresholded to see the result `blended = cv2.addWeighted(th1,0.5,th2,0.5,0)`
