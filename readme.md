@@ -394,4 +394,74 @@ plt.imshow(img)
 
 ### Lecture 23 - Blending and pasting Images
 
+* often we will work with multiple images
+* OpenCV has many programmatic methods of blending images together and pasting images on top of each other
+* Blending Images is done through the **addWeighted** function that uses both images and combines them
+* To blend images we use a simple formula:
+	* `new_pixel=α*pixel_1+β*pixel_2+γ`
+* so it adds weights to each contributing image pixel and adds a bias
+* when images are not same size we have to do masking
+* we read 2 images and fix the color order for display
+```
+img1 = cv2.imread('../DATA/dog_backpack.jpg')
+img1 = cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
+img2 = cv2.imread('../DATA/watermark_no_copy.png')
+img2 = cv2.cvtColor(img2,cv2.COLOR_BGR2RGB)
+```
+* we import matplotlib and show them. they are not the same shape
+* well resize them both to make them same size
+```
+img1 = cv2.resize(img1,(1200,1200))
+img2 = cv2.resize(img2,(1200,1200))
+```
+* we use the addWeighted function to blend them `blended = cv2.addWeighted(src1=img1,alpha=1,src2=img2,beta=0.3,gamma=0.5)` its src1, alpha,src2,beta,gamma
+* if we blend different size images we get an error
+* we will overlay a small image on top of a larget image without blending. 
+* its a simple numpy reassignemnt where the vals of the larger image will be reassigned to equal the vals of the smaller image on the overlayed space
+* we resize img2 to be smaller `img2 = cv2.resize(img2,(600,600))`
+* we rename images `large_img = img1` and `small_img = img2`
+* overlay is pure numpyarray math
+```
+x_offset = 0
+y_offset = 0
+x_end = x_offset + small_img.shape[1]
+y_end = y_offset + small_img.shape[0]
+large_img[y_offset:y_end,x_offset:x_end] = small_img
+```
+
+### Lecture 24 - Blending and Pasting Images Part Two - Masks
+
+* we ve seen how to overlay images on top of each other by simply replacing values of the larger images with vals of the smaller image for the desired RegionOfInterest
+* what if we only want to blend or replace part of the image?
+* what if we want to mask part of the smaller image. say replace only the area in the outline of a logo
+* this needs 3 steps. start with  img1 => build a mask(the mask will let only certain pixels of img1 filter through) => paste the masked pixels on img2
+* lets explore the sysntax of these steps (check links in lecture notebook for other use cases)
+* we start witht he same 2 images (read and fix and resize logo img)
+* we decide where on the base img(img1) we want to blend in the img2 shape (create a ROI). we ll place it in bottom right (numpy array math ahead)
+```
+x_offset = img1.shape[1]-img2.shape[1]
+y_offset = img1.shape[0]-img2.shape[0]
+```
+* what these vals represent is the topleft corner of ROI coorsinates
+* i use tuple unpacking to get img2 dimensions `rows,cols,channels = img2.shape`
+* i grab the ROI `roi = img1[y_offset:img1.shape[0],x_offset:img1.shape[1]]`
+* i now want to create the mask
+	* i get a grayscale version of the image `img2gray = cv2.cvtColor(img2,cv2.COLOR_RGB2GRAY)` its in viridis cmap but is 1 channel
+	* i need to inverse the image because i want with black(0 val) the part to be excluded. we use cv2.bitwise_not (bitwise inversion) for this `mask_inv= cv2.bitwise_not(img2gray)`
+* `mask_inv.shape` shows is 1 channel i need to add the other channels (with numpy)
+* we create a white 3channel background for the size of img2 (mask) `white_background = np.full(img2.shape,255,dtype=np.uint8)` full numpy method fills a speced sized array (shape) with the number we spec (255). as it fills 255 in all cahnnels its white. also we spec dtype=np.uint8 to match the mask dtype
+* to create the actual mask we use cv2.bitwise_or (bitwise disjunction per element)  `bk = cv2.bitwise_or(white_background,white_background,mask=mask_inv)` the result has 3 channels but is essentialy the mask. it applies the mask in all channels. we could just cp the 1 channel in others with numpy
+* we now want to apply the original im2 (red) on the mask to cut the logo out and create the foreground (we use again bitwise_or) `fg = cv2.bitwise_or(img2,img2,mask=mask_inv)`
+* we get the mask overlayed on the roi with biwise_or (not masked) `final_roi = cv2.bitwise_or(roi,fg)`
+* we use overlay to overlay roi on the original large image (like we dit before with numpymath)
+```
+large_img = img1
+small_img = final_roi
+x_end = x_offset + cols
+y_end = y_offset + rows
+large_img[y_offset:y_end,x_offset:x_end] = small_img
+```
+
+### Lecture 25 - Image Thresholding
+
 * 
