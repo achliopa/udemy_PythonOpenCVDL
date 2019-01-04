@@ -561,3 +561,50 @@ display_img(img)
 
 * [Math](https://en.wikipedia.org/wiki/Mathematical_morphology)
 * [Morph Operators](https://homepages.inf.ed.ac.uk/rbf/HIPR2/morops.htm)
+* Morphological Operators are sets of Kernels that can achieve a variety of effects such as reducing noise
+* Certain operators are very good at reducting black points on a white background (or vice versa)
+* Certain operators can also achieve an erosion and dilation effect that can add or erode from an existing image
+* this effect is most easily seen on text data, so we will practice various morphological operators on some simple white text on a black background
+* we create anotebook and do the normal imports
+* we add a helper func to add white text on blabk background
+```
+def load_img():
+    blank_img=np.zeros((600,600))
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(blank_img,text='ABCDE',org=(50,300),fontFace=font,fontScale=5,color=(255,255,255),thickness=25)
+    return blank_img
+```
+* we add a func to deiplay the img
+```
+def display_img(img):
+    fig = plt.figure(figsize=(12,10))
+    ax = fig.add_subplot(111)
+    ax.imshow(img,cmap='gray')
+```
+* we start with errosion (it errodes boundaries of foreround objects) (detect edges and erode boundary)
+	* we define a 5,5 ones kernel `kernel=np.ones((5,5),dtype=np.uint8)`
+	* we apply 'cv2.erode' specing src,kernel,iterations `result = cv2.erode(img,kernel,iterations=1)` the more iterations the more eroded the boundary of the letter (finer) over 5 we lose the letters
+* we follow with opening (erosion followed with dilation). opening removes background noise
+	* we add some binary whitenoise as overlay to original image
+	```
+	img = load_img()
+	white_noise = np.random.randint(low=0,high=2,size=(600,600))
+	white_noise = white_noise*255
+	noise img = white_noise + img
+	display_img(noise_img)
+	```
+	* we do opening using the cv2.morphologicalEx `opening = cv2.morphologyEx(noise_img,cv2.MORPH_OPEN,kernel)` using the same 5x5 kernel we use for erode. the result is a noise image. boundary is not 100% perfect but is very very good
+* sometimes we have foreground noise. we use then Closing to clean
+	* we create black noise on the image (is like white noise but reverse as we multiply by -255). it wonth affect the black background but will affect the white foreground
+	* black noise subtyracts 255 to random pixels making it darker, white noise adds 255 to random pixels
+	```
+	img = load_img()
+	black_noise = np.random.randint(low=0,high=2,size=(600,600))
+	black_noise = black_noise * -255
+	black_noise_img[black_noise_img== -255] = 0
+	display_img(black_noise_img)
+	```
+	* we apply closing. (like opening but with other morph operation) `closing = cv2.morphologyEx(img,cv2.MORPH_CLOSE,kernel)` result is OK
+* Morphological gradient takes the difference between dilation and erosion of an image
+	* (errosion will eat the foregrounf making it thinner, dialtion will thicken the foreground)
+	* morph gradinet will take the difference of two. what we get is the egde or contour of the foreground shape. thsi is a way of edge detection `gradient = cv2.morphologyEx(img,cv2.MORPH_GRADIENT,kernel)` it does a pretty good job
