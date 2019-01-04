@@ -349,3 +349,13 @@ def draw_rectangle(event,x,y,flags,param):
         cv2.rectangle(img,(ix,iy),(x,y),(0,255,0),-1)
 ```
 * we make use of global vars in the callback so we define them as such to be able to alter them
+
+### Lecture 19 - Image basics Assessment
+
+* to fill polyline we can use a beta function `cv2.fillPoly(fix_img,[pts],(0,0,250))`
+
+## Section 4 - Image Processing
+
+### Lecture 21 - Introduction to Image Processing
+
+* 
