@@ -494,3 +494,70 @@ def show_pic(img):
 	* the C val to be subtr. from sum (see docs)
 * we usually play with block size and c val (2 last params)
 * we can now start apply multiple methods like blending adaptive thresholded image with binary thresholded to see the result `blended = cv2.addWeighted(th1,0.5,th2,0.5,0)`
+
+### Lecture 26 - Blurring and Smoothing
+
+* a common operation for image proc is blurring and smoothing an image
+* smoothing an image can help get rid of noise, and help the app focus on general details
+* there are mnay methods for blurring and smoothing
+* often blurring and smoothing is combined with edge detection
+* edge detection algos show many edges when shown a high res image with no blurring
+* edge detection after blurring gives better results
+* Blurring Methods we ll explore:
+	* Gamma Correction: gamma correction can be applied to an image to make it appear brighter or darker depending on the Gamma value chosen
+	* Kernel Based Filters: Kernels can be applied over an image to produce a variety of effects. To understand what is check [Interactive visualization](http://setosa.io/ev/image-kernels/) the examples apply a 3x3 kernel of predef vals dependign the effect we want rolling over the image to apply the effect. we see the original pixels as matrix multiplied with filter kernel vals and the resulting pixel. also in borders ixels are unknown
+
+### Lecture 27 - Blurring and Smoothing - Part Two
+
+* [Tutorial](https://www.tutorialspoint.com/dip/concept_of_blurring.htm)
+* we open a notebook and do the normal imports
+* we add convenience read img func
+```
+def load_img(name):
+    img = cv2.imread(name).astype(np.float32)/255
+    img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+    return img
+```
+* we read an img `img = load_img('../DATA/bricks.jpg')`
+* the image is in float forma of 0-1 scale
+* we add a display image helper func
+```
+def display_img(img):
+    fig = plt.figure(figsize=(12,10))
+    ax = fig.add_subplot(111)
+    ax.imshow(img)
+```
+* we start with gamma correction. we define a gamma <1 and raise the image numpy array to the power of gamma. effectively making the image faded. if gamma >1 the image is more intense(darker)
+```
+gamma = 1/4
+result = np.power(img,gamma)
+```
+* we do our first blurring. a low pass filter witha 2d convolution
+* we will write on the image to show the effect
+```
+img = load_img()
+font = cv2.FONT_HERSHEY_COMPLEX
+cv2.putText(img,text='bricks',org=(10,600),fontFace=font,fontScale=10,color=(255,0,0),thickness=4)
+display_img(img)
+```
+* this font is conventient becaus the contour of letters are clear lines. the space betweenlines in letters will be affected by blurring or smoothing
+* we setup the kernel for the filter our kernel is 5x5 of 1/25 (0.04) val `kernel= np.ones(shape=(5,5),dtype=np.float32)/25`
+* we apply a 2d filter on it with cv2.filter2D. `dst = cv2.filter2D(img,-1,kernel)` we pass in
+	* input image
+	* desired depth (ddepth) of the destination image. if using -1 its the same as input image
+	* the kernel
+* the result is a blurred image. lines ar emore thick in letters and detail is lost from wall. lines flood
+* we reset the image (w/letters) to try a new method (Smooth image with Averaging). its the same as we did before with our custom kernel.. its just we use cv2 built in cv2.blur() method passing the kernel dimensions. the val is the 1/elements in kernel. so it does averaging. just what we did manually before `blurred = cv2.blur(img, ksize=(5,5))`
+* increasing kernel size makes the effect more intense
+* we will apply Gaussian and Median Blurring (not Averaging)
+* Gaussian Blur: `blurred_img = cv2.GaussianBlur(img,(5,5),10)` (src,ksize,sigmavalue)
+* Median Blur: `blurred_img = cv2.medianBlur(img,5)` (src,ksizedim) it takes an int as ksize as the kernel is square. this blur is different as lines dont flood as before (it  does remove noise keeping details)
+* we do a real example. we imread sammy.jpg (tutors dog) and display it after color correcting
+* we imread a noisy version of the picture sammy_noise.jps which is color corrected
+* we ll try to fix the noise with median_blur `fixed_img = cv2.medianBlur(noise_img,5)` it works wonders
+* we will do bilateral filtering to the brick image 'cv2.bilateralFilter' params: src,d,sigmaColor,sigmaSpace `blur = cv2.bilateralFilter(img,9,75,75)` it blurs keeping edges
+
+### Lecture 28 - Morphological Operators
+
+* [Math](https://en.wikipedia.org/wiki/Mathematical_morphology)
+* [Morph Operators](https://homepages.inf.ed.ac.uk/rbf/HIPR2/morops.htm)
