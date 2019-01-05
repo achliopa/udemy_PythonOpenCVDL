@@ -640,4 +640,5 @@ def display_img(img):
 * we apply sobel on y direction `sobely = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=5)` it detects horizontal lines
 * another gradient uses laplacian derivatives. we can calculate these using sobel operators `laplacian = cv2.Laplacian(img,cv2.CV_64F)` we use cv2.Laplacian passing src image and ddepth. it does a good job in bothj directions
 * a use case of this iage could be to do edge detection to detenc numbers in the image
-* we might want the combined result of sobelx and sobely. we can use addWeighted `blended = cv2.addWeighted(src1=sobelx,alpha=0.5,src2=sobely,beta=0.5,gamma=0)`
+* we might want the combined result of sobelx and sobely. we can use addWeighted `blended = cv2.addWeighted(src1=sobelx,alpha=0.5,src2=sobely,beta=0.5,gamma=0)`, 
+* a second step in the pipeline could be to do thresholding or apply morphological operators `ret, th1 = cv2.threshold(blended,100,255,cv2.THRESH_BINARY_INV)` then later do openning to remove noise and so on. or apply morphological gradient `gradient = cv2.morphologyEx(blended,cv2.MORPH_GRADIENT,kernel)`
