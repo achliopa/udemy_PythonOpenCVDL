@@ -642,3 +642,89 @@ def display_img(img):
 * a use case of this iage could be to do edge detection to detenc numbers in the image
 * we might want the combined result of sobelx and sobely. we can use addWeighted `blended = cv2.addWeighted(src1=sobelx,alpha=0.5,src2=sobely,beta=0.5,gamma=0)`, 
 * a second step in the pipeline could be to do thresholding or apply morphological operators `ret, th1 = cv2.threshold(blended,100,255,cv2.THRESH_BINARY_INV)` then later do openning to remove noise and so on. or apply morphological gradient `gradient = cv2.morphologyEx(blended,cv2.MORPH_GRADIENT,kernel)`
+
+### Lecture 30 - Histograms - Part One
+
+* We ll understand what a regular histogram is, then we ll explain what an image histogram means
+* A histogram is a visual representation of the  distribution of a continuous feature
+* its a typical plot in data analysis (pyplot offes it seaborn as well), usually we specify a set of bins and display the frequency of a number being in the bin as a barchart
+* we can display it as a genral trend of the frequency drawing a like (KDE plot)
+* for images we can display the frequency of values for colors
+* each of the three RGB channels has vals between 0-255
+* we can plot these as 3 histograms on top of each other to see how much of each channel there is in the picture
+* we ll see how to create picture histograms with matplotmlib and OpenCV
+* we create a notebook and do the useual imports
+* we imread 3 images fixing the color fot matplotlib (horse.jpg , rainbow.jpg, bricks.jpg). we keep 2 copies one for show in RGB and one for processing in BGR (openCV)
+* horse image has a lot of black so we expect peak near 0 for all channels
+* rainbow has even distribution
+* in bricks we expect a peak for blue
+* to calculate the histogram values we use cv2.calcHist() method `hist_values = cv2.calcHist([blue_bricks],channels=[0],mask=None,histSize=[256],ranges=[0,256])` that takes a s arguments:
+	* [sourse_image in BGR openCV format]
+	* channel to show 0=b,1=g,2=r
+	* mask: if we want to show histogram for a masked part of image (None=show all)
+	* histsize is the num of vals (like buckets) of histogram
+	* ranges : the range of vals 
+* we use plt.plot(hist_values) to plot the histogram in matplotlib
+* for blue_bricks the B hist ihas a peak in midle. for dark_horse a peak in 0 as image has no blue
+* to plot the 2 color histogram all at once in matplotlib we use for loop and vanilla python
+```
+img = blue_bricks
+color = ('b','g','r')
+for i,col in enumerate(color):
+    histr=cv2.calcHist([img],[i],None,[256],[0,256])
+    plt.plot(histr,color=col)
+    plt.xlim([0,256])
+plt.title('Histogram for Image')
+```
+* for dark_horse the histogram is biased as it is a very large picture of mostly pure black so we need to play with plotlimits to see what happens with colors
+
+### Lecture 31 - Histograms - Part Two - Histogram on Masked Portion
+
+* We continue our discussion on histograms with 2 more topics
+	* Histograms on a masked portion of the image
+	* Histogram Equalization
+* As mentioned in the previous lecture we can select a ROI and only calculate the color histogram of that masked section
+* we ll see how to create amask to achieve this effect
+* histogram equalization is a method of contrast adjustment based on teh images histogram. we saw how we can use gamma correction to increase or degreace the brightness of an image. we will see how to increase or decrease the contrast of an image with histogram equalization
+	* we take an image segment (ROI) of a grayscale image and plot its color histogram. the histogram has no vals close to 0 and 255
+	* applying histogram equalization will reduce the color depth (shades of gray or inbetween colors)
+	* min and max vals in this ROI are 52 and 154. after applying the histogram equalization min is 0 and max is 255 so in essence we increase the contrast
+	* histogram is now more evenly distributed or flatened out, high peaks are gone
+	* we also see less shaades of gray
+	* histogram equalization uses the accumulative histogram. after histogram equalization the accumulative histogram is a linear line from min to max
+	* histogram itself maintains the contour but is opened or flatened out
+* we ll do both techniques in opencv
+* we start by building a mask to cut a ROI in the rainbow image. the mask will be white rectangle on black background. we will use bitwise operation (and) on original
+```
+rainbow = cv2.imread('../DATA/rainbow.jpg')
+show_rainbow = cv2.cvtColor(rainbow,cv2.COLOR_BGR2RGB)
+mask = np.zeros(img.shape[:2],np.uint8)
+mask[300:400,100:400] = 255
+masked_img = cv2.bitwise_and(img,img,mask=mask)
+```
+* we also get a show version of the masked img to visualy confirm the histogram results
+* getiung the masked histogram is easy as we apply the mask in calcHist function. with `hist_mask_values_red = cv2.calcHist([rainbow],channels=[2],mask=mask,histSize=[256],ranges=[0,256])` we get the red hist of the ROI
+* to compare we get ared hist for the complete image anfd plot both
+
+### Lecture 32 - Histograms - Part Three - Histogram Equalization
+
+* we load a gorilla image in grayscale and display it using a helper method
+* its a large image
+* we will visualize the histogram then equalize it and see the difference, then convert it back to color image
+* as we work in grayscale we have only one colorchannel to hist `hist_values = cv2.calcHist([gorilla],channels=[0],mask=None,histSize=[256],ranges=[0,256])` we have no pure black colors, and white comes from background
+* to equalize histogram we use cv2.equalizeHist() method passing the image `eq_goriila = cv2.equalizeHist(gorilla)` we display it iand it has high contrast. also we get the histogram and plot it
+* histogram is flatened out and there are alot of 0s in order to get the linear cumulative hist
+* we can apply the equalizeHist in grayscale and color images. for color images we need to convert them to HSV colorspace and use only value channel  in equalization
+```
+hsv_gorilla = cv2.cvtColor(color_gorilla,cv2.COLOR_BGR2HSV)
+value_channel = hsv_gorilla[:,:,2]
+eq_value_channel = cv2.equalizeHist(value_channel)
+hsv_gorilla[:,:,2] = eq_value_channel
+show_eq_color_gorilla = cv2.cvtColor(hsv_gorilla,cv2.COLOR_HSV2RGB)
+display_img(show_eq_color_gorilla)
+```
+* the histogram plot of the value channel is the same as of the grayscale version of the image
+
+### Lecture 33 - Image Processing Assesment
+
+* 
