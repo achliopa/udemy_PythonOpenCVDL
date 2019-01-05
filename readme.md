@@ -586,6 +586,7 @@ def display_img(img):
 	* we apply 'cv2.erode' specing src,kernel,iterations `result = cv2.erode(img,kernel,iterations=1)` the more iterations the more eroded the boundary of the letter (finer) over 5 we lose the letters
 * we follow with opening (erosion followed with dilation). opening removes background noise
 	* we add some binary whitenoise as overlay to original image
+
 	```
 	img = load_img()
 	white_noise = np.random.randint(low=0,high=2,size=(600,600))
@@ -597,6 +598,7 @@ def display_img(img):
 * sometimes we have foreground noise. we use then Closing to clean
 	* we create black noise on the image (is like white noise but reverse as we multiply by -255). it wonth affect the black background but will affect the white foreground
 	* black noise subtyracts 255 to random pixels making it darker, white noise adds 255 to random pixels
+
 	```
 	img = load_img()
 	black_noise = np.random.randint(low=0,high=2,size=(600,600))
@@ -608,3 +610,34 @@ def display_img(img):
 * Morphological gradient takes the difference between dilation and erosion of an image
 	* (errosion will eat the foregrounf making it thinner, dialtion will thicken the foreground)
 	* morph gradinet will take the difference of two. what we get is the egde or contour of the foreground shape. thsi is a way of edge detection `gradient = cv2.morphologyEx(img,cv2.MORPH_GRADIENT,kernel)` it does a pretty good job
+
+### Lecture 29 - Gradients
+
+* [Image Gradients](https://en.wikipedia.org/wiki/Image_gradient)
+* [Sobel Operator](https://en.wikipedia.org/wiki/Sobel_operator)
+* understanding gradents will lead to understand edge detection which applies to object detection, tracking and image classification
+* an image gradient is a directional change in the intensity of color in an image. there are algos that can track this direction
+* in this lecture we will mainly explore basic Sobel-Feldman operators 
+* later in course we will expand on this operator for general edge detection
+* gradients can be calculated in a specific direction
+* if we use a normalized-x gradient from Sobel operator we see edges mainly on the vertical axes
+* if we use a normalized-y gradient from Sobel operator we see edges mainly on the horizontal axes
+* a normalized gradient magnitud from Sobel operator detects edges on both axes
+* the operator uses two 3x3 kernels which are convoluted with the original image to calculate approximations of the derivatives. one for the horizontal changes and one for vertical
+	* Gx = [[+1,0,-1],[+2,0,-2],[+1,0,-1]] * A
+	* Gy = [[+1,+2,+1],[0,0,0],[-1,-2,-1]] * A
+* We ll expolre various gradient operators with OpenCV
+* We ll also combine these concepts with a few other image processing techniques we ve learned
+* we open a notebook, do the imports and add the display image helper
+* we read in a sudoku img in grayscale `img = cv2.imread('../DATA/sudoku.jpg',0)` it has vertical and horizontla lines and nums
+* we apply sobel on the x direction `sobelx = cv2.Sobel(img,cv2.CV_64F,1,0,ksize=5)`. we use cv2.Sobel func with params:
+	* source image,
+	* ddepth (desired depth) selcting from  OpenCV available depths it has to do with the desired level of detail
+	* x derivative (1 as we want to apply in that direction)
+	* y derivcative (0 as we ignore that direction)
+	* ksize=5 (sqaue kernel only 1 direction)
+* the result is as expected.detects vertical edges
+* we apply sobel on y direction `sobely = cv2.Sobel(img,cv2.CV_64F,0,1,ksize=5)` it detects horizontal lines
+* another gradient uses laplacian derivatives. we can calculate these using sobel operators `laplacian = cv2.Laplacian(img,cv2.CV_64F)` we use cv2.Laplacian passing src image and ddepth. it does a good job in bothj directions
+* a use case of this iage could be to do edge detection to detenc numbers in the image
+* we might want the combined result of sobelx and sobely. we can use addWeighted `blended = cv2.addWeighted(src1=sobelx,alpha=0.5,src2=sobely,beta=0.5,gamma=0)`
