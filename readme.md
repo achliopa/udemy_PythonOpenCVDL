@@ -929,4 +929,74 @@ cv2.setMouseCallback('Test',draw_rect)
 * Contour Detection
 	* Allows us to detect foreground vs Background images
 	* Also allows for detection of external vs internal contours (e.g grabbing the eyes and smile from a cartoons smile face)
-* Feature matching
+* Feature Matching
+	* more advanced methods of detecting matching objects in another image, even if the target image is not shown exactly the same in the image we are searching
+* Watershed Algorithm
+	* Advanced algorithm that allows us to segment images into foreground and background
+	* also allows us to manually set seeds to choose segments of an image
+* Facial and Eye Detection
+	* We will use Haar Cascades to detect faces in images
+	* Note that this is not yet facial recognition that requires deep learning which we will learn in future section
+* Project Assessment
+	* A computer vision app that can blur licence plates automatically
+
+### Lecture 42 - [Template Matching](https://en.wikipedia.org/wiki/Template_matching)
+
+* Template matching is the simplest form of object detection
+* it simply scans a larger image for a provided template by sliding the template target image accross the larger image
+* we are talking for an almost exact match
+* the main option that canbe adjusted is the comparison method used as the target template is slid across the larger image
+* the methods are some sort of correlation based metric
+* cv2 offers various methods (TM_SQDFF sqaure difference) (TF_SQDIFF_NORMED normalized square difference) etc
+* we start a notebook with usual imports
+* we imread teh full image we will search in (/sammy.jpg) and color correct it
+* we imread a subset of the full iamge 'sammy_face.jpg' and color correct it
+* the subset is a crop of the full image
+* template matching is part pointless wecause we know beforehand
+* we will use the eval function. eval like sum is a builtin python method. it evaluates a string for a function call
+```
+sum([1,2,3])
+>> 6
+mystring = 'sum'
+myfunc = eval(mystring)
+myfunc([1,2,3])
+>> 6
+```
+* for ease of evaluation we put all TM avaialble methods of cv in an array and loop over it `methods = ['cv2.TM_CCOEFF', 'cv2.TM_CCOEFF_NORMED', 'cv2.TM_CCORR','cv2.TM_CCORR_NORMED', 'cv2.TM_SQDIFF', 'cv2.TM_SQDIFF_NORMED']`
+* we loop over the array `for m in methods:`
+* first thing we make a copy of the full image `full_copy = full.copy()`
+* we make a method to use using eval `method = eval(m)`
+* we do the actual template matching using cv2.matchTemplate() `es = cv2.matchTemplate(full_copy,face,method)` passing full image, the tempalte and the method
+* result is a heatmap (we see it if we plt.imshow(res)). it gives higher values on where it thinks it found the best match. the max value is the best fit (correlation)
+* we will use the min and max val of the heatmap and their locations to draw a rect around the match. we use cv2.minMaxLoc(). `min_val,max_val,min_loc,max_loc = cv2.minMaxLoc(res)`
+* as SQDIFF works the opposite minval == best corr
+```
+    if method in [cv2.TM_SQDIFF,cv2.TM_SQDIFF_NORMED]:
+        top_left = min_loc
+    else:
+        top_left = max_loc
+```
+* we get bottom right of rect to draw the match area from template shape
+```
+    height, width,channels = face.shape
+    bottom_right = (top_left[0]+width,top_left[1]+height)
+```
+* we draw the rect `cv2.rectangle(full_copy,top_left,bottom_right,(255,0,0),10)`
+* we plot and show the image
+```
+    plt.subplot(121)
+    plt.imshow(res)
+    plt.title('HEATMAP OF TEMPALTE MATCHING')
+    plt.subplot(122)
+    plt.imshow(full_copy)
+    plt.title('DETECTION OF TEMPLATE')
+    plt.suptitle(m)
+    
+    plt.show()
+```
+* 'plt.show()' helpt the iteration so we dont overwrite images
+* we see the results. only TM_CCORR performs badly
+
+### Lecture 43 - Corner Detection - Part One - [Harris Corner Detection](https://en.wikipedia.org/wiki/Harris_Corner_Detector)
+
+* 
