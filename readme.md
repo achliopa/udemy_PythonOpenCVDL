@@ -728,3 +728,126 @@ display_img(show_eq_color_gorilla)
 ### Lecture 33 - Image Processing Assesment
 
 * 
+
+## Section 5 - Video Basics with Python and OpenCV
+
+### Lecture 35 - Introduction to Video basics
+
+* Goals of this Section
+	* Connect OpenCV to a WebCam
+	* Use OpenCV to open a video file
+	* Draw Shapes on video
+	* interact with video
+
+### Lecture 36 - Connecting to Camera
+
+* we ll see how to connect with openCV to a usb camera on the laptop or the built-in camera of the laptop
+* also we will see how to video stream from the camera to a file using openCV
+* when we read video data is important to not have multiple notebooks or files running
+* this will create conflicts to openCV
+* we should have only one file reading from camera. the others should have their kernels shutdown
+* a running notebook has a green dot in file tree of jupyter
+* to connect to a camera
+	* import cv2
+	* create a capture object with cv2.VideoCapture passing the index of the input device we will use `cap = cv2.VideoCapture(0)`, for us 0 is the built in camera and 1 is a usb webcam of better quality
+	* we grab the height and width of the frame to use it in processing (they are floats so we cast them to int)
+	
+	```
+	width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+	height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+	```
+	* display the imaage
+	
+	```
+	while True:
+    	ret,frame = cap.read()
+	```
+* what 'cap' is actually is a series of images. a stream of images. 
+a frame is a single image
+* a video is a contiusly updated frame
+* we apply the methods we learned for images on frames. to get the current frame we use cap.read() continuously
+* our processing happens in the while loop (we can add escape logic like before)
+* to convert the frame to gray `gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)`
+* then we use cv2.imshow() to show the frame `cv2.imshow('frame',gray)`
+* we add escape logic
+```
+if cv2.waitKey(1) & 0xFF == ord('q'):
+	break;
+```
+* we then have to stop capturing `cap.release()`
+* and then destroy the window `cv2.destroyAllWindows()`
+* the whole code looks like
+```
+import cv2
+
+cap = cv2.VideoCapture(1)
+
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+while True:
+    
+    ret,frame = cap.read()
+    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+    cv2.imshow('frame',gray)
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+* we run it and it works!!!!!!!!!!
+* we will play around a bit... processing the frame
+* we want to be able to save the stream to a file
+* we need a writer object `writer = cv2.VideoWriter('./myVideo1.mp4',cv2.VideoWriter_fourcc(*'XVID'),30,(width,height))` we use the cv2.VideoWriter() method to save to a file. it takes 4 arguments
+	* the filepath of the file to write
+	* the 4-BYTe code specing the codec to be used (different per operating system)
+	* the fps to use (frames per second) . we can see our cameras FPS with cv2.CAP_PROP_FRAME_COUNT
+	* the size of the frame(wifdth,height)
+* in the while loop after reading we write the frame to the file `writer.write(frame)`
+* after exiting we release the writer `writer.release()`
+
+### Lecture 37 - Using Video Files
+
+* in the previous lecture w esaw hpw tp stream and use the video captured by a camera.
+* we will now see how to use existing video files
+* we work on anotebook single cell
+* we import  cv2
+* we will read mp4 files from disk. its the same as capturing from camera. we just instead of index provide filepath `cap = cv2.VideoCapture('../DATA/hand_move.mp4')`
+* if we insert wrong filename opencv does not exit or codec is  not supported. it just streams nothing. we put a helpful check
+```
+if cap.isOpened() == False:
+    print('ERROR FILE NOT FOUND OR WRONG CODEC USED')
+```
+* our while loop is based on cap.isOpened()
+* we read a frame. if we have red sthing the we show it and listen  for exit key
+* if we get no frame we braeak th e while loop
+* we cleanup capture and window
+```
+cap = cv2.VideoCapture('../DATA/hand_move.mp4')
+
+if cap.isOpened() == False:
+    print('ERROR FILE NOT FOUND OR WRONG CODEC USED')
+    
+while cap.isOpened():
+    
+    ret, frame = cap.read()
+    
+    if ret == True:
+        
+        cv2.imshow('frame',frame)
+        
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+    else:
+        break
+cap.release()
+cv2.destroyAllWindows()
+```
+* video plays very fast. openCV is not built for presenting videos but processing them so its fast
+* to present the video at human normal speed we import time `import time`
+* we add a sleep time equal to the frame rate : for 20fps => 50ms in the while loop `time.sleep(1/20)`
+
+### Lecture 38 - Drawing on Live Camera
+
+* 
