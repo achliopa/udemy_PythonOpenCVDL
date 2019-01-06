@@ -850,4 +850,83 @@ cv2.destroyAllWindows()
 
 ### Lecture 38 - Drawing on Live Camera
 
+* drawing onm video is similar with drawing on image  (frame==image)
+* we import cv2
+* we start capture from camera `cap = cv2.VideoCapture(0)`
+* we get width and height of caputer frame
+```
+width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+```
+* we ll draw a rectangle on the stream
+* we first get the 1/2 of frame dimensions `x = width // 2` // gets the integer part of the division
+* we set the width of the rect `w = width // 4`
+* we draw the rect on frame `cv2.rectangle(frame,(x,y),(x+w,y+h),color=(0,0,255),thickness=4)`
+* we show the frame `cv2.imshow('frame',frame)`
+* we add escape logic and cleanup
+* to interactively draw on the video we use the capture-show frame boilerplate.
+* we add a callback to modify the global vars
+```
+def draw_rect(event,x,y,flags,paran):
+    global pt1,pt2,topLeft_clicked,botRight_clicked
+    
+    if event == cv2.EVENT_LBUTTONDOWN:
+        
+        # RESET THE RECTANGLE (IT CHECKS IF THE RECT THERE)
+        if topLeft_clicked == True and botRight_clicked == True:
+            pt1=(0,0)
+            pt2=(0,0)
+            topLeft_clicked = False
+            botRight_clicked = False
+            
+        if topLeft_clicked == False:
+            pt1 = (x,y)
+            topLeft_clicked = True
+        
+        elif botRight_clicked == False:
+            pt2 = (x,y)
+            botRight_clicked = True
+```
+* we set some global vars
+```
+pt1=(0,0)
+pt2=(0,0)
+topLeft_clicked = False
+botRight_clicked = False
+```
+* we do the connection to the callback
+```
+cv2.namedWindow('Test')
+cv2.setMouseCallback('Test',draw_rect)
+```
+* we draw the rectangle in the while loop using the global values
+```
+    if topLeft_clicked:
+        cv2.circle(frame,center=pt1,radius=2,color=(0,0,255),thickness=-1)
+    if topLeft_clicked and botRight_clicked:
+        cv2.rectangle(frame,pt1,pt2,(0,0,255),3)
+```
+
+### Lecture 39 - Video Basics Assessment
+
 * 
+
+## Section 6 - Object Detection with OpenCV and Python
+
+### Lecture 41 - Introduction to Object Detection
+
+* The Section Goals
+	* Understand a variety of object detection methods
+	* we ll build up on more complex methods as we go along
+* Template Matching
+	* simply looking for an exact ccopy of an image on another image
+* Corner Detection (General Detection)
+	* looking for corners in images
+* Edge Detection (General Detection)
+	* expanding to find general edges of objects
+* Grid Detection (General Detection)
+	* combining  both concepts to find grids in images (useful for applications)
+* Contour Detection
+	* Allows us to detect foreground vs Background images
+	* Also allows for detection of external vs internal contours (e.g grabbing the eyes and smile from a cartoons smile face)
+* Feature matching
