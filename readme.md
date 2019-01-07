@@ -1122,4 +1122,29 @@ upper = int(min(255,1.3*med_val))
 
 ### Lecture 47 - Contour Detection
 
+* Contours are defined as simply a curve joining all the continuous points (along the boundary), having same color or intensity
+* Contours are a useful tool for shape analysis and object detection and recognition
+* OpenCV has a built-in Contour finder finder function that can also help us differentiate between internal and external contours
+* we do the normal imports
+* we read in (in grayscale) an image 'internal_external.png' with simple contours (internal and external)
+* to extract the contours we use cv2.findContours `image, contours, hierarchy = cv2.findContours(img, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)` with has as arguments
+	* the src image,
+	* the type of detection (internal,external contours, both)
+	* the algorithm to be used
+* the function returns the image. a list (conttours) and a 3d array with hierarchies (onyly if we use both internal and external.
+* the contrours are 22 whic matches what we expect forthis simple image
+* to show the contours we initialize a black image as zeros `external_contours = np.zeros(image.shape)`
+* then we iterate in the list of contours and:
+* if the 3rd element of the hierarchy array for the indexed contour is -1 it means it is an external so we draw it using the drawContours method that takes the black image (where to draw on) the contours object, the index the colour it will use and the thicknes (-1  for fill)
+```
+for i in range(len(contours)):
+    
+    # EXTERNAL CONTOUR
+    if hierarchy[0][i][3] == -1:
+        cv2.drawContours(external_contours,contours,i,255,-1)
+```
+* internal contour edges touch the foreground to get them and draw them we use the same loop but the condition is the hierarchy to be != -1 (non external)
+
+### Lecture 48 - Feature Matching - Part One
+
 * 
