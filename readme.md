@@ -1069,6 +1069,39 @@ plt.imshow(real_chess)
 ```
 * we see better results than harris
 
-### Lecture 45 - Edge Detection
+### Lecture 45 - [Edge Detection](https://en.wikipedia.org/wiki/Edge_detection)
 
-* 
+* In this lecture we will learn how to use the [Canny Edge Detector](https://en.wikipedia.org/wiki/Canny_edge_detector) one of themost popular edge detection algorithms
+* It was developed in 1986 by John Canny and is a multi-stage algorithm
+* Canny Edge Detection Pipeline:
+	* Apply Gaussian filter to smooth the image in order to remove the noise
+	* Find the intensity gradients of the image
+	* Apply non-maximum suppression to get rid of spurious response to edge detection
+	* apply double threshold to determine potential edges
+	* track edge by hysteresis: Finalize the detection of edges by suppressing all the other edges that are weak and not connected to strong edges
+* For high res images where we only want general edges, it is usually good idea to apply a custom blur before applying canny algorithm
+* Canny algorithm requires the user to decide on low and high threshold values
+* In our notebook we provide an equation for picking a good starting point for threshold vals, but often we will need to adjust to our particular image
+* we add the normal imports
+* we will work on sammy_face.jpg. we dong care about color correction
+* we will apply the canny edge detector straight through (no blurring) `edges = cv2.Canny(image=img,threshold1=127,threshold2=127)` we set low and hight threshold to half. we plot and see there is a lot of noise in the result
+* we can solve it with:
+	* blurring the image beforehand
+	* play with threshold
+* we play with threshold and get some good results with `edges = cv2.Canny(image=img,threshold1=220,threshold2=240)`
+* we will use a formula that helps select good thresholds
+* we calculat ethe median pixel val `med_val = np.median(img)` its 64
+* we select the thresholds based on
+```
+# LOWER THRESHOLD TO EITHER 0 OR 70% OF THE MEDIAN VAL, WHICHEVER IS GREATER
+lower = int(max(0,0.7*med_val))
+# UPPER THRESHOLD TO EITHER 1300% OF THE MEDIAN VAL oR 255, WHICHEVER IS SMALLER
+upper = int(min(255,1.3*med_val))
+```
+* we apply the thresholds `edges = cv2.Canny(image=img,threshold1=lower,threshold2=upper)` results are actually worse
+* we blur `blurred_img = cv2.blur(img,ksize=(5,5))` and apply result is considerably better
+* to improve more we increase kernel size
+
+### Lecture 46 - Grid Detection
+
+*  
