@@ -999,4 +999,76 @@ myfunc([1,2,3])
 
 ### Lecture 43 - Corner Detection - Part One - [Harris Corner Detection](https://en.wikipedia.org/wiki/Harris_Corner_Detector)
 
+* when thinking about corner detection in computer vision, we should define what is a corner
+* a corner is a point whose local neighborhood stands in two dominant and different edge detections. it can be interpreted as the junction of two edges, where an edge is a sudden change in image brightness
+* we will look at 2 of the most popular algorithms for corner detection.
+	* Harris Corner Detection
+	* Shi-Thomas Corner Detection
+* Harris Corner Detection
+	* 1988 by Chris hharris and Mike Stevens
+	* the basic intuition is that corners can be detected by looking for significant change in all directions
+	* shifting a window in any direction on a corner region will result in a large change in appearance
+	* doing the same on aflat region will have no effect at all
+	* doing shifting on an edge wonth have major change if we shift along the direction of the edge
+	* In a nutshell Harris Corner Detection math says: if we scan the image with a window (like we did with kernels) and we notice an area where there is major change no matter in which direction we scan, we expect a corner to be there. the window does shifting
+* Shi-Thomasi Corner Detection
+	* 1994 by J.Shi and C.Tomasi in the papaer Good Features to Track
+	* It made a small mod to the Harris Corner Detection that geve better results
+	* the mod is a change to the scoring function selection criteria that Harris uses for corner detection: Harris uses R=λ1λ2-κ(λ1+λ2) Shi-Tomasi uses  R=min(λ1,λ2)
+* We ll explore how to use both with the OpenCV lib.
+* we do normal imports in notebook
+* we imread a chessboard image 'flat_chessboard.png' and color correct it.
+* image is a perfect grid with clear corners and clear edges
+* we cnv it to grayscale
+* we also read a real chess image 'real_chessboard.jpg' we expect the algo to find corners related to pieces as well. we color correct it and turn it to grayscale
+* we apply harris corner detection to the flat nd real chess image
+* first we convert the grayscale image (0-255) to float vals (0. to 1.) we do it with plain casting `gray = np.float32(gray_flat_chess)`
+* we then apply harris cd `dst = cv2.cornerHarris(src=gray,blockSize=2,ksize=3,k=0.04)` passing in:
+	* src image
+	* blocksize of the window
+	* ksize of the sobel operator used for edge detection
+	* k param (harris detector free param) (typically 0.04)
+* we then dilate results for ploting it `dst = cv2.dilate(dst,None)`
+* there is a threshold for optimal value that varies upon the image. we choose it to be 0.01*max() value of resutl and use it to turn to red the pixels that are over the threshold in terms of corner detection rerult. we apply it to the original image with numpy array indexing `flat_chess[dst> 0.01*dst.max()] = [255,0,0]`
+* we plot the image. detection is perfect
+* outer edges are not detected. it is seen as flat space.
+* we will apply haris to the grayscale version of the real chess
+```
+gray = np.float32(gray_real_chess)
+dst = cv2.cornerHarris(src=gray,blockSize=2,ksize=3,k=0.04)
+real_chess[dst> 0.01*dst.max()] = [255,0,0] #RGB
+plt.imshow(real_chess)
+```
+* it detec alot of corners of pieces as well
+
+### Lecture 44 - Corner Detection - Part Two - [Shi-Tomasi Detection](http://www.ai.mit.edu/courses/6.891/handouts/shi94good.pdf)
+
+* we will use the same images for testing (real,flat + gray versions)
+* we use 'cv2.goodFeaturesToTrack' method with params:
+	* src image
+	* max corners we want returnd (0 to return all)
+	* a quality level param (minimum eigen val)
+	* minimu distance 
+* we will draw little circles in positions he thinks he found the corners. it does not store the points of corners like the harris . we need to flatten out the arrya and draw circles on it
+* corners are float so we turn them to int `corners = np.int0(corners)`
+* the we iterate through corners getinng coord from flatened rray and drawing circle
+```
+for i in corners:
+    x,y = i.ravel()
+    cv2.circle(flat_chess,(x,y),3,(255,0,0),-1)
+```
+* we then plot the drawun image
+* we do the same for real_chess trying to detect 100 corners
+```
+corners = cv2.goodFeaturesToTrack(gray_real_chess,100,0.01,10)
+corners = np.int0(corners)
+for i in corners:
+    x,y = i.ravel()
+    cv2.circle(real_chess,(x,y),3,(255,0,0),-1)
+plt.imshow(real_chess)
+```
+* we see better results than harris
+
+### Lecture 45 - Edge Detection
+
 * 
