@@ -1104,4 +1104,22 @@ upper = int(min(255,1.3*med_val))
 
 ### Lecture 46 - Grid Detection
 
-*  
+*  often cameras can create a distortion in an image, such as radial distortion and tangential distortion
+* a food way to account for these distortions when performing operation like object tracking is to have a recognizable pattern attached to the object being tracked
+* grid patterns are often used to calibrate cameras and track motion (eg attach/draw a cube on a grid that will move as grid moves)
+* openCV has built in methods for tracking grids and chessboard like patterns
+* we do normal imports
+* we read the 'flat_chessboard.png' image
+* for grid detection to work the grid has to have a chessboard like appearance. then we have to place it on the samera we want to calibrate
+* to find the chessboard corners we use cv2.findChessboardCorners `found,corners = cv2.findChessboardCorners(flat_chess,(7,7))` we pass in the src image and a tuple with the number of grid edges the grid area as in each direction. it returns a tuple with found (a bool if it found the pattern) and the position of the grid edges
+* corners is a list of coordinates 
+* we use them with another build in method 'cv2.drawChessboardCorners' `cv2.drawChessboardCorners(flat_chess,(7,7),corners,found)` which draws on the image we pass the corners found
+* another grid like pattern is circle based grids (dot grids)
+* we read in 'dot_grid.png' with perfectly clean circles
+* we will use equivalent cv2 methods like chessboard but for circlegrid (same concept same params) `found,corners = cv2.findCirclesGrid(dots,(10,10), cv2.CALIB_CB_SYMMETRIC_GRID)` we use alsoa a grid param
+* corners are in a same format. we use the drawchessboardcorners passing the corners `cv2.drawChessboardCorners(dots,(10,10),corners,found)`
+* grid detection is used for camera calibration
+
+### Lecture 47 - Contour Detection
+
+* 
