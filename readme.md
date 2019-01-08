@@ -1147,4 +1147,35 @@ for i in range(len(contours)):
 
 ### Lecture 48 - Feature Matching - Part One
 
-* 
+* This is the halfway of the course.
+* So far we ve learned a lot of technical syntax, but havent really neen able to apply it to more complex computer vision applications
+* This is the point where we begin to do useful computer vision apps. we will use all our technical knowledge and python sysntax skills with OpenCV to create programs that are directly applicable to realistic situations
+* We will begin with Feature Matching
+* We ve already seen template matching to findobjects (tempalte images) within a larger iamge. it required an exact copy of the image.
+* usually this is not useful in real world situations as we ll have an indicative image of what we are looking for, not an exact copy.
+* what we do in such situations is feature matching
+* Feature matching extracts defining key feats from an input image (using ideas from corner,edge, and contour detection)
+* then using a distance calculation finds all the matches in a secondary image
+* this means we are no longer required to have an exact copy of the target image in the secondary image
+* We will use 3 methods:
+	* Brute-Force matching with ORB Descriptors
+	* Brute-Force Matching with SIFT Descriptors and Ratio Test
+	* FLANN based Matcher
+* we will test with a generic cereal box image and see if we can find its matching box in the cereal isle
+* we do normal imports and use our display helper function
+* we imread a cereal image 'reeses_puffs.png' as grayscale. this is the query image
+* the target image is 'many_cereals.jpg' we imread it as a grayscale. in target image the query image exists but not as exact copy
+* First we apply Brute Force Detection with ORB descriptors
+* we first create the detector `orb = cv2.ORB_create()`
+we then apply the detector on both images (target and query) to extract keyponts and descriptors (Nonoe stands if we want to use a mask)
+```
+kp1, des1 = orb.detectAndCompute(reeses,None)
+kp2, des2 = orb.detectAndCompute(cereals,None)
+```
+* the we apply brute force matcher using default params `bf = cv2.BFMatcher(cv2.NORM_HAMMING,crossCheck=True)`
+* we use the bruteforce result to get the matches between descriptors from 2 images `matches = bf.match(des1,des2)`
+* we sort the matches based on their distance attribute (represents the match) `matches = sorted(matches, key=lambda x:x.distance)`
+* we use a convenience method to draw matches for showing  using images, keypoints and matches array. `reeses_matches = cv2.drawMatches(reeses,kp1, cereals,kp2, matches[:25], None,flags=2)`
+* we then display the image. we see that we have no successful match
+
+### Lecture 49 - Feature Matching - Part Two
