@@ -1489,4 +1489,72 @@ def detect_face(img):
 
 ### Lecture 58 - [Optical Flow](https://en.wikipedia.org/wiki/Optical_flow)
 
+* Optical Flow is the pattern of apparent motion of image objects between two consecutive frames caused by the movements of the object or camera
+* Optical flow analysis gas a few assumptions
+	* the pixel intensities of an object do not change between consecutive frames
+	* neighbouring pixels have similar motion
+* The optical methods in OpenCV will first take in a given set of points and a frame
+* Then it will attempt to find those points in the next frame
+* It is up to the user to supply the points to track
+* we consider a five frame clip of a ball moving up and towards the right
+* given the clip we cannot determine if the ball is moving or if the camera moved down and to the left
+* using OpenCV we pass in the previous frame, previous points and the current frame to the Lucas-Kanade function
+* the function attempts to locate the (tracked) points in teh current frame
+* The Lucas-Kanade computes optical-flow for a sparse feature set (meaning only the points it was told to track)
+* But what if we want to track all teh points in teh video
+* In that case we can use Gunner Farnerback's algorithm (also built in to OpenCV) to calculate dense optical flow
+* This dense optical flow will calculate flow for all points in an image
+* It will coler them black if no flow (no movement) is detected
+
+### Lecture 59 - Optical Flow Coding with OpenCV - Part One
+
+* We start with Lucas-kanade method for sparce flow
+* we will use simple SHi-Tomashi corner detection to find point to track
+	* we set the params as dict `corner_track_params = dict(maxCorners= 10, qualityLevel=0.3, minDistance=7, blockSize=7)`
+	* we will find 10 corners in first frame and track them
+* we se LK params as dict passing some default vals: 
+	* winSize = window size (smaller more sensitive to noise and might lose larger motions, larger window might miss small motions), 
+	* maxLevel = (LK uses image pyramide for image proc) is the levels of pyramid used. what we gain is we can track motions at various resolutions of the image
+	* criteria = 2 criteria (maximum num of iterations, epsilon or accuracy) we should adjust them depending on the video
+* we grab a frame from camera to find the poits to track and turn it to grayscale
+```
+cap = cv2.VideoCapture(1)
+ret, prev_frame = cap.read()
+prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
+```
+* we get the points to track `prevPoints = cv2.goodFeaturesToTrack(prev_gray,mask=None,**corner_track_params)
+`
+* we create a mask to draw the points and create lines on the video (initialize with 0) `mask = np.zeros_like(prev_frame)`
+* we dd the while loop where
+	* we capture a frame and turn it to grayscale
+	* we calcualte the optical flow with LK `nextPts, status, err =  cv2.calcOpticalFlowPyrLK(prev_gray,frame_gray,prevPoints,None,**lk_params)` we pass inL
+		* prev frame
+		* curr frame
+		* prevPoints
+		* None nextPoints (we will get them as return vals)
+		* the config params
+	* we will use the returned status array which outputs a status vector where each element of the vector is set to 1 if the flow for teh correspondent feature has been found
+	* we use it to get the good new points `good_new = nextPts[status==1]`
+	* also to get the good prev poitns (for drawing the line) `good_prev = prevPoints[status==1]`
+	* we zip both iterating through to draw the lines and set the dots of point son frame
+```
+    for i, (new,prev) in enumerate(zip(good_new,good_prev)):
+        x_new, y_new = new.ravel()
+        x_prev, y_prev = prev.ravel()
+        
+        mask = cv2.line(mask,(x_new,y_new),(x_prev,y_prev),(0,255,0),3)
+        
+        frame = cv2.circle(frame,(x_new,y_new),8,(0,0,255),-1)
+```
+* we mask the frame and show it 
+```
+    img = cv2.add(frame,mask)
+    cv2.imshow('tracking',img)
+```
+* we set durr frame as prev and good new points as prev for next iteration (frame)
+* we need to reshape the good_new points so its accepted by the LK
+* we release frame and destroy window
+
+### Lecture 60 - Optical Flow Coding with OpenCV - Part Two
+
 * 
