@@ -1245,3 +1245,27 @@ for i,(match1,match2) in enumerate(matches):
 * our draw method becomes `flann_matches = cv2.drawMatchesKnn(reeses,kp1,cereals,kp2,matches,None,**draw_params)`
 
 ### Lecture 50 -[ Watershed Algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing)) - Part One
+
+* In geograpshy, a watershed is a land area that channels rainfall and snowmelt to creeks,streams and rivers and eventually to outflow points such as reservoirs, bays, and the ocean
+* These watersheds can then be segmented as topolographical maps with boundaries (topographical lines of altitude in maps)
+* Metaphorically the watershed algorithm transformation treat the image it operates upon like a topographic map, with the brightness of each point representiong its height, and finds the lines that run along the tops of ridges (like water aggreages in geography, brightness aggregates in images)
+* Any grayscale image can be viewed as a topographic surface where high intensity denotes peaks and hills while low intensity denotes valleys
+* The algorithm can then fill every isolated valleys (local minima) with different colored water (labels)
+* as "water" (inensity) rises, depnding on the peaks (gradients) nearby, "water" from different valleys (different segments of the image) with different colors could start to merge
+* To avoid this erging, the algorithm creates barriers (segment edge boundaries) in locations where "water" merges
+* this algorithm is especially useful for segmenting images into background and foreground in situations  that are difficult for other algorithms
+* a common example is the use of coins next to ech other on a table. for most CV algos when they see the image the coinsed all cois as a large blob
+* it may be unclear to the algo if it should be treated as one large object or many small objects.
+* watershed algo can be very effective for these sort of problems
+* later on we will also learn how to provide our own custom 'seeds' that allow  us to manually start where the valleys of the watersheds go
+* we ll begin exploring the syntax of te watershed algorithm with OpenCV and then expand this idea to set our own seeds
+* We start our notebook with the normal imports and the helper method
+* we imread 'pennies.jpg' a high res image of 6 coins attached to each other
+* our goal is to be able to produce 7 segments in the image (6 for coins and 1 for background)
+* we will test algos we know sofar to show the waekness of the algos in distinguising the coins
+* We first apply median blur to get rid of feats we dont need `sep_blur = cv2.medianBlur(sep_coins,25)`
+* we will turn it to grayscale `gray_sep_coins = cv2.cvtColor(sep_blur,cv2.COLOR_BGR2GRAY)`
+* We will apply binary threshold
+* We will find the contours
+```
+```
