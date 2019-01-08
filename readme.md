@@ -1265,7 +1265,50 @@ for i,(match1,match2) in enumerate(matches):
 * we will test algos we know sofar to show the waekness of the algos in distinguising the coins
 * We first apply median blur to get rid of feats we dont need `sep_blur = cv2.medianBlur(sep_coins,25)`
 * we will turn it to grayscale `gray_sep_coins = cv2.cvtColor(sep_blur,cv2.COLOR_BGR2GRAY)`
-* We will apply binary threshold
-* We will find the contours
+* We will apply binary threshold `ret,sep_coins_thresh = cv2.threshold(gray_sep_coins,160,255,cv2.THRESH_BINARY_INV)` wee that no matter how we play the coins are allways attached in one shape (we could erode)
+* We will find the contours `image,contours,hierarchy = cv2.findContours(sep_coins_thresh.copy(), cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE)`
+* we draw the external contours
 ```
+for i in range(len(contours)):
+    if hierarchy[0][i][3] == -1:
+        cv2.drawContours(sep_coins,contours,i,(255,0,0),10)
 ```
+* contour is one giant contour
+* we need a more advanced method
+
+### Lecture 51 - Watershed Algorithm - Part Two
+
+* we read the same image
+* we apply median blur (huge kernel for huge image) `img = cv2.medianBlur(img,35)`
+* we turn to grayscale `gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)`
+* we try thresholding `ret, thresh = cv2.threshold(gray,127,255,cv2.THRESH_BINARY_INV)` we see that despite the high blur we still pick up features in binary thresh
+* We will apply Otsu's method for thresholding with beteer results which is a very good match to the watershed algorithm. we apply again thersholiding adding OTSU (otsu works with full range between low and up treshold) `ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)`
+* our circles are still connected
+* we do noise removal (no effect in such a simple image. makes sense for real complex images) using the morphological operators `opening = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel,iterations=2)` for this image has no effect
+* we still face the problem. we have one blob as object
+* we get the sure background area by dilating onthe opened image `sure_bg = cv2.dilate(opening,kernel,iterations=3)`
+* what we need to do for the watershed is to set seeds that we are sure that are in the foreground (6 seeds 1 per coin)
+* how we grab things we are sure are in the foreground vs things in the background? we use [distance transform](https://en.wikipedia.org/wiki/Distance_transform). what this dows is as we move away from boundaries with background (0) pixels get higher values (become brighter). we can apply this to our thresholded image and expect the coins center to be the brightest points. then we can rethreshold and get the 6 seed points `dist_transform = cv2.distanceTransform(opening, cv2.DIST_L2, 5)`
+* we reapply thresholding to get surely foreground points `ret,sure_fg = cv2.threshold(dist_transform,0.7*dist_transform.max(),255,0)` 0.7*dist_transform.max() is a typical value used. we get 6 points we are sure to be in foreground. we will use them as seeds
+* the region outside the dots is the unknown region. we need the watershed algo to figure out what it is
+* we get the unknown region by subtracting sure foreround from sure background region. that where we need to use watershed algo
+```
+sure_fg = np.uint8(sure_fg)
+unknown = cv2.subtract(sure_bg,sure_fg)
+```
+* we need to add label markers to the 6 points and let them be the seeds of watershed algo
+* we get the markers from foreground `ret, markers = cv2.connectedComponents(sure_fg)` and add 1 to separate rom background. markers are the same points but with different color
+* we explicitly set the unknown area to 0 `markers[unknown==255] = 0` thats why we added 1 before. to clearly  separate it from unknown area
+* we are now ready to fill/flood the unknwon area with watershed algrithm.. `markers = cv2.watershed(img,markers)` we have clear separation.
+* we cna now confidently get the contours
+```
+image,contours,hierarchy = cv2.findContours(sep_coins_thresh.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)`
+for i in range(len(contours)):
+    if hierarchy[0][i][3] == -1:
+        cv2.drawContours(sep_coins,contours,i,(255,0,0),10)
+```
+* we did the work manually. in next lecture we will do it autom.
+
+### Lecture 52 - Custom Seeds with Watershed Algorithm
+
+* 
