@@ -1307,8 +1307,104 @@ for i in range(len(contours)):
     if hierarchy[0][i][3] == -1:
         cv2.drawContours(sep_coins,contours,i,(255,0,0),10)
 ```
+
 * we did the work manually. in next lecture we will do it autom.
 
 ### Lecture 52 - Custom Seeds with Watershed Algorithm
+
+* we want to be able to click on the image setting the seeds manually. and let the algo run all the steps to do the segmentation automatically
+* in a new notebook we do the normal imports
+* we read in an image 'road_image.jpg' and do a copy out of it
+* we wont do color correction as we will use opencv to view and interact with the image
+* we create an empty space to draw on the results of the algorithm using the shape of the road. one for the markers for watershed `marker_image = np.zeros(road.shape[:2],dtype=np.int32)` and one to draw the segments `segments = np.zeros(road.shape,dtype=np.uint8)`
+* we then have to choose how to create the colors for the markers. we will use colormaps
+* matlplotlib colormaps have qualitatibe colormaps that are indexable
+```
+from matplotlib import cm
+cm.tab10(0)
+```
+* what we get is a color in tuple form with rgb vals in float format + alpha param
+* to use the colors we cast them to tuple `tuple(np.array(cm.tab10(0)[:3])*255)` color is in OpenCV BGR format
+* we make it a func	
+```
+def create_rgb(i):
+    tuple(np.array(cm.tab10(i)[:3])*255)
+```
+* and use it to create 10 distinct colors for markers
+```
+colors = []
+for i in range(10):
+    colors.append(create_rgb(i))
+```
+* we start implementing our application
+* we define the globals
+```
+current_marker = 1 # color choice
+marks_updated = False # markers updated by watershed algorithm
+```
+* we write our callback function. it mod the global marks_updated. it listens to event LBUTTONDOWN.when this happens it draws a circle ont he road_copy the user sees and draws a marker on the marker_image to be fed to the algorithm
+```
+def mouse_callback(event,x,y,flags,param):
+    global marks_updated
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # MARKERS PASSED TO THE WATERSHED ALGO
+        cv2.circle(marker_image,(x,y),10,(current_marker),-1)
+        # USER SEES ON THE ROAD IMAGE
+        cv2.circle(road_copy,(x,y),10,colors[current_marker],-1)
+        marks_updated = True
+```
+* we add window and callback bind for Riad Image window 
+```
+cv2.namedWindow('Road Image')
+cv2.setMouseCallback('Road Image', mouse_callback)
+```
+* we start the while loop
+	* we show 2 windows: one for placing the markins on road image and one for segments
+	* we add escape logic
+	* we add reset logic (reseting markers sergments matrices and current marker selection)
+	* we add logic to change marker group with digits
+	* when user clicks (marker update)
+		* we make a copy of marker image
+		* we run watershed on original image based on marker image copy (current selection)
+		* we rest segments
+		* we redrow them  based ont the markers_mage copy status (watershed output)
+```
+while True:
+    
+    cv2.imshow('Watershed Segments',segments)
+    cv2.imshow('Road Image',road_copy)
+    
+    # CLOSE ALL WINDOWS
+    k = cv2.waitKey(1)
+    
+    if k == 27:
+        break
+    
+    # CLEARING ALL COLORS IF USER PRESSES C KEY
+    elif k == ord('c'):
+        road_copy = road.copy()
+        marker_image = np.zeros(road.shape[:2],dtype=np.int32)
+        segments = np.zeros(road.shape,dtype=np.uint8)
+    
+    # UPDATE COLOR CHOICE
+    elif k > 0 and chr(k).isdigit():
+        current_marker = int(chr(k))
+        
+    # UPDATE THE MARKINGS
+    if marks_updated:
+        
+        marker_image_copy = marker_image.copy()
+        cv2.watershed(road,marker_image_copy)
+        
+        segments = np.zeros(road.shape,dtype=np.uint8)
+        
+        for color_ind in range(n_markers):
+            # COLORING THE SEGMENTS, NUMPY CALL
+            segments[marker_image_copy==(color_ind)] = colors[color_ind]
+    
+cv2.destroyAllWindows()
+```
+
+### Lecture 53 - Introduction to Face Detection
 
 * 
