@@ -1179,3 +1179,69 @@ kp2, des2 = orb.detectAndCompute(cereals,None)
 * we then display the image. we see that we have no successful match
 
 ### Lecture 49 - Feature Matching - Part Two
+
+* we will now use SIFT (scale invariant feature transform) descriptors fro bruteforce feat detection
+* it performs better in cases where query image is scaled in the target image
+* we start with creating a sift object `sift = cv2.xfeatures2d.SIFT_create()`
+* in the same way as before we extract keypoints and descriptors from both query and target image.
+```
+kp1, des1 = sift.detectAndCompute(reeses,None)
+kp2, des2 = sift.detectAndCompute(cereals,None)
+```
+* we have calculated the descriptors we will compare them using brute force `bf = cv2.BFMatcher()`
+* we will calc the matches fromthe bf object in a different manner `matches = bf.knnMatch` what this does is takes 2 sets of descriptors and a value k (number of best matches  it will find per descriptor of the query set)
+* descriptors are coordinates of where feats were found
+* as i set 2 as k the matches obj is an arraw of 2 matchobjects per descriptor. first match is better than the second
+* we will now apply a ratio test. our intution is that if the distance of match1 is close to the distance of match2 the this descriptor's  feat is probably a good match between query set and target set
+```
+good = []
+for match1,match2 in matches:
+    # IF MATCH 1 DISTANCE IS <75% OF MATCH2 DISTANCE
+    # THEN DESCRIPTOR WAS A GOOD MATCH, KEEP IT
+    if match1.distance < 0.75*match2.distance:
+        good.append([match1])
+```
+* this filtering does pretty good job (keeps ~5%)
+* we draw the matches using conv method `sift_matches = cv2.drawMatchesKnn(reeses,kp1,cereals,kp2,good,None,flags=2)`
+* we display. resutls are actually very good
+* we ll work with FlANN (Fast Library for Aproximate Nearest Neighbours) based matcher. its much faster than Bruteforce but it finds general good matches
+* we can play with FLANN params to imporve resutls but it slows down the algo
+* we start like before creating a sift object `sift = cv2.xfeatures2d.SIFT_create()` and getting keypoints and descriptors from images
+* we set Flann params (to defaults)
+```
+FLANN_NDEX_KDTREE = 0
+index_params = dict(algorithm=FLANN_NDEX_KDTREE,trees=5)
+search_params = dict(checks=50)
+```
+we compare descriptors with flann `flann = cv2.FlannBasedMatcher(index_params,search_params)`
+* we grab the k nearest neigbours matches with `matches = flann.knnMatch(des1,des2,k=2)`
+* we do a ratio test like before
+```
+good = []
+# LESS DISTANCE == BETTER MATCH
+for match1,match2 in matches:
+    # IF MATCH 1 DISTANCE IS <75% OF MATCH2 DISTANCE
+    # THEN DESCRIPTOR WAS A GOOD MATCH, KEEP IT
+    if match1.distance < 0.75*match2.distance:
+        good.append([match1])
+
+```
+* we use draw helper to draw them `sift_matches = cv2.drawMatchesKnn(reeses,kp1,cereals, kp2,good, None, flags=2)`
+* we display and see the result. we get good results with increase in speed
+* if we use flags=0 we see also the dots of the matches (potential feats to match on).
+* to play with coloring in presentation to make understanding better we will mask the matches.
+* after geting them and before ratio test we do `matchesMask = [[0,0] for i in range(len(matches))]` so we get array of nested size 2 zero arrays equal in num to matches
+* we will turn them on (0to1) if we have a good match (during ratio test)
+```
+# LESS DISTANCE == BETTER MATCH
+for i,(match1,match2) in enumerate(matches):
+    # IF MATCH 1 DISTANCE IS <75% OF MATCH2 DISTANCE
+    # THEN DESCRIPTOR WAS A GOOD MATCH, KEEP IT
+    if match1.distance < 0.75*match2.distance:
+        matchesMask[i]=[1,0]
+```
+* we no longer need to gopy in good. we use indexing in mask
+* we create a dray params dict obj `draw_params = dict(matchColor=(0,255,0),singlePointColor=(255,0,0),matchesMask=matchesMask,flags=0)`
+* our draw method becomes `flann_matches = cv2.drawMatchesKnn(reeses,kp1,cereals,kp2,matches,None,**draw_params)`
+
+### Lecture 50 -[ Watershed Algorithm](https://en.wikipedia.org/wiki/Watershed_(image_processing)) - Part One
