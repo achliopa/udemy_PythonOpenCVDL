@@ -1469,3 +1469,24 @@ def detect_face(img):
 * in this func we make a copy of image and use detectMultiScale on the cascade object passing in the image
 * what it returns is an array of rectangles (topleft position   width and height)
 * we iterate n teh array drawing the rectangles on teh image and return it
+* we test it on our test images . it works but for the multifface image it throws false positives
+* we will adjust some params to imrpove performance (scale factor and minimum neighbors) `face_rects = face_cascade.detectMultiScale(face_img,scaleFactor=1.2,minNeighbors=5)`
+* we test and we have a false negative of a face not lookng in the camera
+* we will look for eyes using an Eye_cascade file. in nadia it works but not in denis
+* we will do it with video capture
+
+### Lecture 55 - Detection Assessment
+
+* 
+
+## Section 7 - Object Tracking
+
+### Lecture 57 - Introduction to Object Tracking
+
+* Object Tracking Section Goals
+	* Lear basic object tracking techniques: Optical Flow, MeanShift and CamShift
+	* Understand more advanced tracking: Review Built-in Tracking APIs
+
+### Lecture 58 - [Optical Flow](https://en.wikipedia.org/wiki/Optical_flow)
+
+* 
