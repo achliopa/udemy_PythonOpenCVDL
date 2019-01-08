@@ -1405,6 +1405,67 @@ while True:
 cv2.destroyAllWindows()
 ```
 
-### Lecture 53 - Introduction to Face Detection
+### Lecture 53 - Introduction to [Face Detection](https://en.wikipedia.org/wiki/Haar-like_feature)
 
-* 
+* In this lecture we will explore face detection using Haar Cascades, which is key component of the Viola-Jones object detection framework
+* Keep in mind we are talking about face detection NOT face recognition
+* we will be able to very quickly detect if a face is in an image and locate it
+* however we wont know who's face it belongs to.
+* we would need a  really large dataset and deep learning for facial recognition
+* In 2001 Paul Viola and Michael Jones published their method of face detection based oin the simple concept of a few key features
+* They also came up with the idea of precomputing an integral image to save time on calculations
+* Lets understand the main feature types Viola and jones Proposed
+* main feature types are:
+	* edge features (horizontal ore vertical) e.g [[0,0,0],[1,1,1]]
+	* line features (horizontal or vertical) e.g [[1,1,1],[0,0,0],[1,1,1]]
+	* four rectangle features e.g [[0,1],[1,0]]
+* each feature is a single value obtained by subtracting sum of pixels under white rectangle from sum of pixels under black rectangle
+* realistically, our images won't be perfect edges or lines
+* these feats are calculated by subtracting the mean of the dark region from the mean of the light region
+* a perfect line (0,1) whoud result to an 1. the closer our result (delta) is to 1 the better the feature
+* we then set a threshold above which we consider to have a feature
+* calculating these sums for the whole image can be computational expensive
+* the Viola-Jones algorithm solves it by using the precalculated integral image
+* this results in an O(1) running time of the algorithm
+* an integral image is known as a summed area table which comes fromt the original image by summing the pixel values in the area defined as a rectanngle with topleft =(0,0) and pt2=(x,y) the position of the pixel (bottom right)
+* this allows to calculate very fast the mean and the delta
+* this algorithm also saves time by going through a cascade of classifiers
+* this means we will treat the image to a series (a cascade) of classifiers based on the simple feats we saw earlier
+* once an image fails a clasifier we can stp attempting to detect a face
+* a common misconception behind face detection with this algo is that the algorithm slowly scans the entire image looking for a face
+* this would be very inefficient. instead we pass a cascade of classifiers
+* first we need a front face image of a persons face
+* then we turn it to grayscale
+* then we will begin to search for the Haar Cascade features
+* one of the very first features searched for is an edge feature indicating eyes and cheeks
+* if it passes we go to next feature such as the bridge line of the nose
+* if it passes we continue with other features (eyebrows edges, mouth line etc)
+* untill the lagorithm decides it has detected a face based on the features
+* theoretically this approach can be used for a variety of objects or detections (like pretrained eye detector)
+* the downside of this algorithm is that very large datasets are needed to create our own feature sets
+* luckily many pre-trained sets of features exist
+* OpenCV comes wwith pre-trained xml files of various Haar Cascades
+* Later on in the deep learning section of the course we will see how to create our own classification algorithm for any distinct group of images (e.g cats vs dogs)
+* we have placed pre-trained .xml files int eh DATA folder
+* we will also be using a pre-trained file for our upcomming project assessment
+* first we ll expore how to use facial detection with OpenCV
+
+### Lecture 54 - Face Detection with OpenCV
+
+* we do the normal imports
+* we will use two portrait images. one is professionally edited with gradients causing issues down the line
+* also will use a group photo in grayscale
+* we imread the images
+* we need to create a classifier and pass in teh XML classifier `face_cascade = cv2.CascadeClassifier('../DATA/haarcascades/haarcascade_frontalface_default.xml')`
+* we will functionalize the way cascades work 
+```
+def detect_face(img):
+    face_img = img.copy()
+    face_rects = face_cascade.detectMultiScale(face_image)
+    for (x,y,w,h) in face_rects:
+        cv2.rectangle(face_img,(x,y),(x+w,y+h),(255,255,255),10)
+    return face_img
+```
+* in this func we make a copy of image and use detectMultiScale on the cascade object passing in the image
+* what it returns is an array of rectangles (topleft position   width and height)
+* we iterate n teh array drawing the rectangles on teh image and return it
