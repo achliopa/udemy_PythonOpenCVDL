@@ -1571,9 +1571,71 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 * we want to convert this into polar coordinates to magnitude and angle, when we get tis info we will map it to the HSV color mapping. magnitude will represent saturation and angle the hue
 * if all moves in the same direction it will be colored the same way
 * we conver to polar coordinates `mag, ang = cv2.cartToPolar(flow[:,:,0],flow[:,:,1],angleInDegrees=True)` angle in degrees
-* i set the hue in hsv as the angle/2 to reduce the num of hues ` hsv_mask[:,:,0] = ang/2`
+* i set the hue in hsv as the angle/2 to reduce the num of hues `hsv_mask[:,:,0] = ang/2`
 * we set value channel in mask to the mag in 0-255 range `hsv_mask[:,:,2] = cv2.normalize(mag,None,0,255,cv2.NORM_MINMAX)`
 * we convert the mask to bgr to be presentable `bgr = cv2.cvtColor(hsv_mask,cv2.COLOR_HSV2BGR)`
-* we imshow the mask ` bgr = cv2.cvtColor(hsv_mask,cv2.COLOR_HSV2BGR)`
+* we imshow the mask `bgr = cv2.cvtColor(hsv_mask,cv2.COLOR_HSV2BGR)`
 * we add escape logic, renew the frame `prevIng = nextImg`
 * and cleanup out of the  loop
+
+### Lecture 61 - MeanShift and CAMShift Tracking Theory
+
+* Some of the most basic tracking methods are MeanShift and CAMShift
+* We ll first describe the general MeanShift algortithm, then learn how to apply it for image tracking
+* Afterwards we will learn how to extend the MeanShift into CAMShift (Continuously Adaptive MeanShift)
+* Imagine we have a set of x,y points and we want to assign them into clusters
+* we will take all our data points and stack red and blue points on them (blue on top of red)
+* the direction to the closest cluster centroid is determined by where most of the points nearby are at (weighted mean)
+* so in each iteration each blue point will mov closer to where the most points are at, which is or will lead to the cluster center
+* blue and red datapoints overlap completely in teh first iteration before the Meanshift algorithm starts
+* at the end of iteration one, all the blue points move towards the clusters. 
+* in our example in 3rd iteration all clusters reach convergence. there is no reason for more iterations as cluster means stop moving
+* Meanshift algo wont always detect what may appear to us more reasonable
+* In K-means algorithm (Machine Learning) we choose how many clusters we have beforehand
+* How MeanShift applies to object tracking:
+* meanshift can be given a target to track, calculate the color histogram of the target area, and then keep sliding the tracking window to the closest match (the cluster center)
+* Just using Meanshift won't change the window size if the target moves away or towards the camera.
+* We can use CAMShift to update the size of the Window
+
+### Lecture 62 - MeanShift and CAMShift Tracking with OpenCV
+
+* we start notebook and do the imports
+* we start video capture
+* we grab a frame
+* we will get our ROI doing facetracking once in the first frame only
+* we get the haarcascade obj in object `face_cascade = cv2.CascadeClassifier('../DATA/haarcascades/haarcascade_frontalface_default.xml')`
+* we get the rects where face is dtected using cascades `face_rects = face_cascade.detectMultiScale(frame)`
+* we grab the first face as we want to track only one `(face_x,face_y,w,h) = tuple(face_rects[0])` we convert it to tuple as it is needed for the algo
+* we name our tuple tracking window `track_window = (face_x,face_y,w,h)`
+* we set an ROI for tracking `roi = frame[face_y:face_y+h,face_x:face_x+w]`
+* we use hsv colormapping `hsv_roi = cv2.cvtColor(roi,cv2.COLOR_BGR2HSV)`
+* we will get the hsv histogram to backproject each frame in order to calculat ethe meanshift `roi_hist = cv2.calcHist(hsv_roi,[0],None,[180],[0,180])` we get hist for hue channel for vals 0-180
+* the algo works with 0-255 so we normalize `cv2.normalize(roi_hist,0,255,cv2.NORM_MINMAX)`
+* we set the termination criteria `term_crit = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,10,1)` for 10 iterations or eps=1
+* we start our while loop
+* if we have a frame we convert it to hsv
+* we will calculate the backprojection based on the roi hist we have `dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)` note we work on 0-180
+* using meanShift we get a new trackwindow pasing the previous one, the backpropagation and the term criteria `ret, track_window = cv2.meanShift(dst,track_window,term_citeria)`
+* we will now draw a new rect on the image based on the new track window (we do tuple unpacking to get coords `x,y,w,h = track_window`)
+* we add the rectangle `img2 = cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),5)` and show the frame
+* we add escape logic and cleanup
+* we fix of the rect not resizing based on head size change using the CAMShift
+```
+        ret,track_window = cv2.CamShift(dst,track_window,term_criteria)
+        pts = cv2.boxPoints(ret)
+        pts = np.int0(pts)
+        img2 = cv2.polylines(frame,[pts],True,(0,0,255),5)
+```
+* essentialy we draw a polyline and use CAMshift
+
+### Lecture 63 - Overview of various Tracking API Methods
+
+* [Boosting Tracker](http://www.vision.ee.ethz.ch/boostingTrackers/onlineBoosting.htm)
+* [MIL Tracker](http://faculty.ucmerced.edu/mhyang/papers/cvpr09a.pdf)
+* [KCF Tracker](https://arxiv.org/abs/1404.7584)
+* [TDL Tracker](https://ieeexplore.ieee.org/document/6104061)
+* [Median Flow Tracker](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.231.4285&rep=rep1&type=pdf)
+* There a re many Object Tracking methods
+* Fortunately, many have been designed as simple API calls with openCV
+* We ll explore a few of these easy to use Object Tracking APIs and in next lect we ll use them with OpenCV
+* 
