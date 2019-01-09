@@ -1707,4 +1707,55 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 
 ### Lecture 67 - Understanding Classification Metrics
 
+* We learned that after our machine leerarning process is complete, we will use performance metrics to evaluate how our model did
+* The key classification metrics we need to understand are:
+	* accuracy
+	* recall
+	* precision
+	* F1-score
+* Typically in any classification task our model can only achieve 2 results
+* either model was correct in its prediction
+* or our model was incorrect in its prediction
+* correct and incorrect expands in situations where we have multiple classes
+* for the purposes of explainin the metrics lets imagine binary classification situation where we have 2 available classes
+* in our example we will try to predict if an image is a dog or cat
+* as we deal with supervised learn we fit/train a model on training data and then test model on testing data
+* once we have the model predictions from the X_test data we compare them with the trye yvals (correct labels)
+* we repeat test process for all images in our test data
+* at the end we will have a count of correct matches and a count of incorrect matches.
+* the key point to take is that in real world not all incorrect or correct matches hold equal value
+* we could organize our predicted values vs the real values in a confusion matrix
+* Accuracy: 
+	* is the number of correct predictions made by the model / total number of predictions
+	* is useful when target classes are well balanced 
+	* its not a good choice with unbalanced classes
+	* = 1 - error rate (misclassification rate)
+* Recall: 
+	* ability of a model to find all relevant cases within a dataset.
+	* number of true positives / num of true positives + num of false negatives
+* Precision:
+	* ability of a classification model to identify only the relevant data points
+	* num of true positives / num of true positives + num of false positives
+* Recall vs Precision:
+	* often we have a trade-off between then
+	* while recall expresses the abilityto find all relevant instances in a dataset, precision expresses the proportion of the data points our model says was relevant vs what actually  was relevant
+* F1-score: 
+	* in cases where we want to find an optimal blend of precision and recall we can combine the two metrics using the F1 score
+	* it is the harmonic mean of precision and recall (F1 =  2 * (precision * recall)/(precision + recall))
+	* we use harm mean vs average it punishes extreme values
+	* a classifier with precision 1 and recall 0 has average of 0.5 but F1 is 0
+* Comfusion Matrix
+	* FP (False Positive) Type I error (prediction postive VS condition negative)
+	* FN (False Negative) Type II error (prediction negative VS condition positive)
+
+### Lecture 68 - introduction to Deep Learning Topics
+
+* We will cover
+	* neurons
+	* Neural networks
+	* Cost Function
+	* Gradient Descent and BackPropagation
+
+### Lecture 69 - Understanding a Nuron
+
 * 
