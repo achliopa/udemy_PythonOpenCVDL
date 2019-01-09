@@ -1756,6 +1756,75 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 	* Cost Function
 	* Gradient Descent and BackPropagation
 
-### Lecture 69 - Understanding a Nuron
+### Lecture 69 - Understanding a Neuron
+
+* We skip 69-72 (see PythoDSML and Tesorflow Courses notes)
+
+### Lecture 73 - Keras Basics
+
+* We ll learn how to create a machine learning model with keras
+* we ll start with some data on currency bank notes
+* some of these bank notes were forgeries and others were legit
+* researchers created a dataset from these banknotes by taking images of the notes and then extracting various numerical features based on the wavelets of the images
+* the dataset is not images.
+* we are doing general machine learning using Keras
+* when we learn about CNN then we can expand on Keras to feed in image data (pixel images) into a network
+* we open a notebook anmd import
+```
+import numpy as np
+from numpy import genfromtxt
+```
+* we import data from csv using genfromtxt numpy method seting the delimiter to comma `data = genfromtxt('../DATA/bank_note_data.txt',delimiter=',')`
+* our data is a (1372,5) array where last column contains the classes 0. = forgery 1. = legit
+* first we need to separate teh label from the actual features 
+```
+y = labels = data[:,4] 
+X = features = data[:,:4]
+``` 
+* i will now have to split my data to the train and test sets. we use sklearn lib to do it
+```
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+```
+* when we work with NNs its a good idea to standardize or scale the data.we use sklearn for that
+```
+from sklearn.preprocessing import MinMaxScaler
+scaler_object = MinMaxScaler()
+scaler_object.fit(X_train)
+scaled_X_train = scaler_object.transform(X_train)
+```
+* when we scale we always fit on train data (unless is data leakage to the model)
+* all scaled feat vals now are between 0 and 1
+* we start building our keras model with importing our DNN model and our layers type 
+```
+from keras.models import Sequential
+from keras.layers import Dense
+```
+* we create our model and add layers to it
+```
+model = Sequential()
+model.add(Dense(4,input_dim=4,activation='relu'))
+model.add(Dense(8,activation='relu'))
+model.add(Dense(1,activation='sigmoid'))
+```
+* we compile our model adding loss method, oprimizer, and metrics `model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])`
+* its time to fit or train the model `model.fit(scaled_X_train,y_train,epochs=50,verbose=2) we set the num of epochs
+* to get the predictions (y_test_pred)  `model.predict_classes(scaled_X_test)`
+* to get the model metrics  `model.metrics_names`
+* we import confusion matrix to get the report of metrics and print the metrics
+```
+from sklearn.metrics import confusion_matrix, classification_report
+predictions = model.predict_classes(scaled_X_test)
+confusion_matrix(y_test,predictions)
+print(classification_report(y_test,predictions))
+```
+* to save the model for production `model.save('my_banknote_classification_model.h5')`
+* to reuse the model we load it with keras
+```
+from keras.models import load_model
+newmodel = load_model('my_banknote_classification_model.h5')
+```
+
+### Lecture 74 - MNIST Data Overview
 
 * 
