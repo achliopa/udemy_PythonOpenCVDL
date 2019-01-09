@@ -1557,4 +1557,23 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 
 ### Lecture 60 - Optical Flow Coding with OpenCV - Part Two
 
-* 
+* We will take the entire image to detect points
+* to see all the params we can see the course notebook
+* we do usual imports
+* we start capture object
+* we read a frame a frame (initial frame) and turn it to grayscale
+* we setup an HSV based mask `hsv_mask = np.zeros_like(frame1)`
+* we set saturation to max `hsv_mask[:,:,1] = 255`
+* we enter the while loop
+* we grab next frame in the loop and turn it to grayscale
+* we calculate the optical flow with Farnerbach `flow = cv2.calcOpticalFlowFarneback(prevImg,nextImg,None,0.5,3,15,3,5,1.2,0)` passing default params
+* the flow object contains vector flow cartesian info (x,y)
+* we want to convert this into polar coordinates to magnitude and angle, when we get tis info we will map it to the HSV color mapping. magnitude will represent saturation and angle the hue
+* if all moves in the same direction it will be colored the same way
+* we conver to polar coordinates `mag, ang = cv2.cartToPolar(flow[:,:,0],flow[:,:,1],angleInDegrees=True)` angle in degrees
+* i set the hue in hsv as the angle/2 to reduce the num of hues ` hsv_mask[:,:,0] = ang/2`
+* we set value channel in mask to the mag in 0-255 range `hsv_mask[:,:,2] = cv2.normalize(mag,None,0,255,cv2.NORM_MINMAX)`
+* we convert the mask to bgr to be presentable `bgr = cv2.cvtColor(hsv_mask,cv2.COLOR_HSV2BGR)`
+* we imshow the mask ` bgr = cv2.cvtColor(hsv_mask,cv2.COLOR_HSV2BGR)`
+* we add escape logic, renew the frame `prevIng = nextImg`
+* and cleanup out of the  loop
