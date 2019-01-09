@@ -1670,4 +1670,41 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 
 * we will use the course notebook
 * we can select tracker at runtime
-* we draw manually our roi
+* we draw manually our roi using 'cv2.selectRoi(frame,False)'
+* we use the roi to initialize tracker `ret = tracker.init(frame,roi)`
+* in the loop we update tracker with new frames `success, roi = tracker.update(frame)`
+
+## Section 8 - Deep Learning for Computer Vision
+
+### Lecture  65 - Introduction to Deep Learning for Computer Vision
+
+* Section Topics and Goals
+	* High level overview of Machine Learning
+	* Overview od understanding classification metrics
+	* Cover Deep Learning Basics
+	* Keras Basics
+	* MNIST Data Overview
+	* CNN Theory
+	* Keras CNN
+	* Deep Learning on Custom Image Files
+	* Understanding YOLO v3
+	* YOLO v3 with Python
+
+### Lecture 66 - Machine Learning Basics
+
+* Before diving into Deep Learning, lets work on understanding the general machine learning process we will be using
+* The specific case of machine learning we will be conducting is known as supervised learning
+* Machine Learning is a method of data analysis that automates analytical model building
+* using algorithms that iteratively learn from data, machine learning allows computers to find hidden insights without being explicitly programmed where to look
+* Supervised learning algorithms are trained using labeled examples, such as an input where the  desired output is known
+* E.g. a picture have a category label such as either a Dog or Cat
+* The Learning algorithm receives a set of inputs along with the corresponding correct outputs and the algorithm learns by comparing its actual output with correct outputs to find errors
+* It then modifies the model accordingly
+* Supervised learning is used in apps where hist data predicts futrure events
+* Data Acq -> Data Cleaning => repeat[model training and building -> Model testing w/test  data ] -> model deployents
+* Image classification and recognition is a very common and widely applicable use of deep learning and machine learning with OpenCV and Keras
+* We continue by learning how to evaluate a classification task
+
+### Lecture 67 - Understanding Classification Metrics
+
+* 
