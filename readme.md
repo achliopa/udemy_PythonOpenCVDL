@@ -1827,4 +1827,21 @@ newmodel = load_model('my_banknote_classification_model.h5')
 
 ### Lecture 74 - MNIST Data Overview
 
+* A classic data set in Deep Learning is the MNIST data set
+* We ll quickly cover some basics about it since w ll be using similar data concepts quite frequently during this section of the course
+* The data set is easy to accesss with Keras. it has 60k training images 10k test images
+* it contains hand written single digits from 0 to 9
+* a single digit image can be represented as a numpy array
+* they are 28x28 and have 1 color channel normalized (0-1)
+* our input tensor is 4D (60000,28,28,1) or (samples,x,y,channels) for color images the las dimension would be 3
+* for labels we ll use hot encoding. instad of having labels like 'one' 'two' etc w ll have a single array for each image. the orgiginal labels are given as list of nums [5,4,5,...,7,2] we will convert them to on-hot encoding (easy to do with Keras)
+* Hot encoding:
+	* the label is represented based of the index position in the label array
+	* the corresponding label will be 1 at the index location and zero elsewere
+	* eg 4 will have this label array [0,0,0,0,1,0,0,0,0,0]
+	* works well with sigmoid
+* As a result labels for training data ends up being a 2D array (60000,10)
+
+### Lecture 75 - Convolutional Neural Networks Overview - Part One
+
 * 
