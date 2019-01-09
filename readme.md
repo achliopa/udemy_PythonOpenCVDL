@@ -1638,4 +1638,36 @@ prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
 * There a re many Object Tracking methods
 * Fortunately, many have been designed as simple API calls with openCV
 * We ll explore a few of these easy to use Object Tracking APIs and in next lect we ll use them with OpenCV
-* 
+* BOOSTING TRACKER:
+	* based off AdaBoost algorithm (the same underlying algorithm that the HAAR Cascade based Face Detection used)
+	* Evaluation occurs across multiple frames
+	* Pros: very well known and studied algorithm
+	* Cons: Does not know when tracking has failed, there are many better techniques
+* MIL TRACKER:
+	* Multiple Instance Learning
+	* Similar to BOOSTING, but considers a neighborhood of points around the current location to create multiple instances
+	* Check the project page for details
+	* Pros: good performance and does not drift as much as BOOSTING
+	* Cons: failure to track an object may not be reported back, cannot recover from full obstruction
+* KCF TRACKER:
+	* Kernelized Correlation Filters
+	* Exploits some properties of the MIL Tracker and the fact that many data points will overlap, leading to more accurate and faster tracking
+	* Pros: better than MIL and BOOSTING, Great First Choice
+	* Cons: Cnnot recover from full obstruction of object
+* TDLD TRACKER:
+	* Tracking, learning and Detection
+	* The Tracker follows the object from frame to frame
+	* The Detector localized all appearances that have been observed so far and corrects the tracker if necessary
+	* The learning estimates detector's errors and updates it to avoid these errors in the future
+	Pros: Good at tracking even with obstruction in frames, tracks well under large changes in scale
+	* Cons: Can provide many false positives
+* Median Flow Tracker:
+	* Internally, this tracker tracks the object in both forward and backward directions in time and measures the discrepancies between these two trajectories
+	* Pros: very good at reporting failed tracking, works well with predictable motion
+	* Cons: Fails under large motion (fast moving objects)
+
+### Lecture 64 - Tracking APIs with OpenCV
+
+* we will use the course notebook
+* we can select tracker at runtime
+* we draw manually our roi
