@@ -1844,4 +1844,75 @@ newmodel = load_model('my_banknote_classification_model.h5')
 
 ### Lecture 75 - Convolutional Neural Networks Overview - Part One
 
+* we just created a NN for already defined features
+* what if we have the raw image data?
+* we need to learn about CNNs in order to effectively solve the problems that image data can present
+* just like the simple perceptron, CNNs also have their origins in biological research
+* Hubel and Wiesel studied the structure of the visual cortex in mammals winning a Nobel prize in 1981
+* their research revealed that neurons in the visual cortex had a small local receptive field (they are looking ata a subset of the image a person is viewing). these sections overlap and create the larger image
+* these neuron in the visual cortex are only activated when they detect certtain things (e.g a horizontal line,a black circle etc)
+* this idea then inspired an ANN architecture that would become CNN
+* This architecture was implemented by Yann LeCun in 1998
+* THe LeNet-5 architecture was first used to classify the MNIST data set
+* When we learn about CNNs we often see a diagram with subsampling/pooling and convolution layers generating feature maps from an image
+* Topics:
+	* Tensors
+	* DNN vs CNN
+	* Convolutions and Filters
+	* Padding
+	* pooling Layers
+	* Review Dropout
+* Tensors are N-Dimensional Arrays that we build up to as we increase the level of dimension:
+	* Scalar -3
+	* Vector - [3,4,5]
+	* Matrix - [[3,4],[5,6],[7,8]]
+	* Tensor - [[1,2],[3,4]],[[5,6],[7,8]]
+* Tensors make it very conveninent to feed in sets of images into our model - (I,H,W,C)
+	* I: Images
+	* H: Height of Image in Pixels
+	* W: Width of Image in Pixels
+	* C: Color Channels: 1-Grayscale, 3-RGB
+* Lets explore the difference between a Densely Connected Neural Network and a Convolutional Neural Network
+* Recall that we've aleady been able to create DNNs with tf.estimator API
+* In a DNN every neuron in one layer is connected to every neuron in next layer
+* IN a CNN each unit is connected to a smaller number of nearby units in next layer inspired by biology that in visual cortex that we only look at local receptive fields
+* Why CNN? MNIST dataset is 28x28=784 . most images are at least 256x256 = >56k. this leads to too many params unscalable to new images
+* Convolutions also have a major advantage for image processing, where pixels nearby to each other are much more correlated to each other for image detection
+* Each CNN layer looks at an increasingly larger part of the image
+* Having units only connected to nearby units also aids in invariance
+* CNN also helps with regularization by limiting the search of weights to the size of the convolution
+* Lets explore how the convolutional neural network relates to image recognition
+* We start with the input layer, the image itself
+* Convolutional layers are only connected to pixels in their respective fields
+* we run into a possible issue for edge neurons. there may not be an input there for them. we can fix this by adding a padding of 0x around the image
+* Converting a DNN to CNN with 1-D convolution. we have only local connections to next layer. the weights of the connections work as filters (e.g for edge detection)
+* our filters have a size (how many neuron take part) and a stride hoew many neuron to skip to the next group
+* we can stack multiple filters (conceptually verticaaly) adding a dimension to our tensors
+* Each filter detects a different filter
+* we describe and visualize these sets of neurons as sets of blocks
+* In 2D convolutions (images) our layers (tensor) have 3D (FxWxH) if we have color image we add a dimension
+* subsections of theimage translate to sections of the tensor (layer)
+* Convolutional fitlers are commonly visualized as a grid system (direclty as image processing with kernels)
+
+### Lecture 76 - Convolutional Neural Networks Overview - Part Two
+
+* we saw what convolutions are
+* we ll see what subsampling (pooling) layers
+* Pooling layers will subsample the input image, which reduces the memory use4 and computer load as well as reducing the number of params
+* say we have a layer of pixels in our inpute image
+* for our MNIST digits set, each pixel had a value representing darkness
+* we create a 2x2 pool (or 3x3 or XxX) of pixels and ealuate the max val. only the max val makes it to the next layer
+* the pooling layer removes a lot of info. even a 2x2 pooling kernel with stride of 2 removes 75% of the input data
+* Another technique deployed by CNN is Dropout
+* Dropout can be thought as a form of regularization to help prevent overfitting
+* During training, units are randomly dropped, along with their connections
+* This helps prevent units from co adapting too much
+* We ll see some famous CNN architectures
+	* LeNet-5 by Yann LeCun
+	* AlexNet by Alex Krizhevsky et al.
+	* GoogleNet by Szegedy at Google Research
+	* ResNet by Kaiming He et al
+
+### Lecture 77 - Keras Convolutional Neural Networks with MNIST
+
 * 
