@@ -2010,4 +2010,104 @@ new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Compu
 
 ### Lecture 80 - Deep Learning on Custom Images - Part One
 
-* 
+* in real world apps we will have to work with real images ray jpeg images
+* we will use real images
+* in the CATS_DOGS folder with data there are two folders 'train' and 'test' each with 'CAT' and 'DOG' subfolders
+* this is the default way of adding classification data in keras. also hav eto put it in the kjupyter notebook folder
+* we open notwebook and import cv2 and matplotlib
+* we load a cat from train folder `cat4 = cv2.imread('CATS_DOGS/train/CAT/4.jpg')` we clor corect it and show it
+* we do the same for a dog image
+* we note that images have different shapes
+* we need to prepair the data for the model
+* keras has a method that read data and prepares aflow of batches to pass in the model `from keras.preprocessing.image import ImageDataGenerator`
+* image_geenrator also creates variations of the images for a stronger model
+* we create an image generator passin in a lot of alteration to the image as params
+```
+image_gen = ImageDataGenerator(rotation_range=30,
+                              width_shift_range=0.1,
+                              height_shift_range=0.1,
+                              rescale=1/255,
+                              shear_range=0.2,
+                              zoom_range=0.2,
+                              horizontal_flip=True,
+                              fill_mode='nearest')
+```
+* we use it on the dog image `image_gen.random_transform(dog2)` and plot it. every time we run it we get a different modified version of dog2
+* next we will create a lot of modified images from our train directory. we use `image_gen.flow_from_directory('CATS_DOGS/train')` which creates a constant feed of images (randomized) to the model
+* it returns a DirecoryIterator object. it also found how many classes (num of folders)
+
+### Lecture 81 - Deep Learning on Custom Images - Part Two
+
+* We will instroduce some slightly different imports to reflect the most recent  changes to Keras lib.
+* THese are just a few different imports: MaxPool2D => MaxPooling2D, Adding activation functions separately
+* we import model and layers (keras v2.2 style)
+```
+from keras.models import Sequential
+from keras.layers import Dense,Activation,Dropout,Flatten,Conv2D,MaxPooling2D
+```
+* we create the model and add layers
+```
+model = Sequential()
+model.add(Conv2D(filters=32,kernel_size=(3,3),input_shape=(150,150,3),activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(filters=64,kernel_size=(3,3),input_shape=(150,150,3),activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Conv2D(filters=64,kernel_size=(3,3),input_shape=(150,150,3),activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Flatten())
+model.add(Dense(128))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
+model.compile(loss='binary_crossentropy',
+             optimizer='adam',
+             metrics=['accuracy'])
+```
+* we set input_shape=(150,150,3) we will add this to image generator  flow from idr params. so that we get fed with images resized to have a uniform size
+* we add dropout layer to avoid overfitting
+* we select batch size and the input shape (same like in model)
+```
+input_shape = (150,150,3)
+batch_size = 16
+```
+* we create our generator for train and test
+```
+train_image_gen = image_gen.flow_from_directory('CATS_DOGS/train',
+                                               target_size=input_shape[:2],
+                                               batch_size = batch_size,
+                                               class_mode='binary')
+test_image_gen = image_gen.flow_from_directory('CATS_DOGS/test',
+                                               target_size=input_shape[:2],
+                                               batch_size = batch_size,
+                                               class_mode='binary')
+```
+* generator objects are loaded with attributes `train_image_gen.class_indices` shows us which num belongs to which class
+* we train our model using the generator 
+```
+results = model.fit_generator(train_image_gen,epochs=1,steps_per_epoch=150,
+                             validation_data=test_mage_gen,validation_steps=12)
+```
+* we set steps per epoch to limit the size of the epoch. in our case 150 batches of 16
+* we will also run our validation in same run with 12 steps of 16
+* to ignore warnings
+```
+import warnings
+warnings.filterwarnings('ignore')
+```
+* we have thre results so we can evaluate thte model
+* we can see its accuracy in 1st epoch validation with `results.history['acc']`
+* we load a pretrained model for 100 epochs
+```
+from keras.models import load_model
+new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Computer-Vision/cat_dog_100epochs.h5')
+```
+* we do prediction using the pretrained model
+	* we get an image path `dog_file  = 'CATS_DOGS/test/DOG/10005.jpg'`
+	* we import image preproc from keras `from keras.preprocessing import image`
+	* we load image resizing it `dog_img = image.load_img(dog_file,target_size=(150,150))`
+	* we conver it to array `dog_img = image.img_to_array(dog_img)`
+	* we reshape the array so that keras thinks its a batch of 1 image `dog_img = np.expand_dims(dog_img,axis=0)`
+	* shape now is (1,150,150,3)
+	* we normalize it `dog_img = dog_img /255`
+	* 
