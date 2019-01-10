@@ -2110,4 +2110,9 @@ new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Compu
 	* we reshape the array so that keras thinks its a batch of 1 image `dog_img = np.expand_dims(dog_img,axis=0)`
 	* shape now is (1,150,150,3)
 	* we normalize it `dog_img = dog_img /255`
-	* 
+	* we do the prediction `new_model.predict_classes(dog_img)` it is correct id  give class 1 (dog)
+	* how sure it was? `new_model.predict(dog_img)`
+
+### Lecture 82 - Deep Learning and Convolutional Neural Networks Assessment
+
+* 
