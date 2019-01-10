@@ -1915,4 +1915,59 @@ newmodel = load_model('my_banknote_classification_model.h5')
 
 ### Lecture 77 - Keras Convolutional Neural Networks with MNIST
 
+* we open a new network
+* we import mnist dataset from keras `from keras.datasets import mnist`
+* we load train and test data `(x_train,y_train),(x_test,y_test) = mnist.load_data()`
+* we check shape of x_train `x_train.shape` is (60000,28,28) there is no color channel
+* we import matplotlib and plot the first image `plt.imshow(x_train[0,:,:],cmap='gray')`
+* the y_train is (60000,0) so esentyally a 1d array of nums 0-9
+* we want to hot encode them as if we feed them like this then network will get confuses as if its a regression rpoblem
+* to hot encode we import `from keras.utils.np_utils import to_categorical`
+* we do the hotencoding
+```
+y_cat_test = to_categorical(y_test,10)
+y_cat_train = to_categorical(y_train,10)
+```
+* `y_cat_test.shape` is (10000,10)
+* our train data are not normalized. `x_train[0].max()` is 255 . we normalize it to be 0-1 in a way that we dont need sklearn
+```
+x_train = x_train / x_train.max()
+x_test = x_test / x_test.max()
+```
+* i need to reshape the data to convert it to be fed to a general network. we add the color channel. `x_train = x_train.reshape(60000,28,28,1)` we do sam e for x_test
+* we start building our model
+```
+from keras.models import Sequential
+from keras.layers import Dense,Conv2D,MaxPool2D,Flatten
+```
+* we create the model
+```
+model = Sequential()
+# Convolutional Layer
+model.add(Conv2D(filters=32,kernel_size=(4,4),input_shape=(28,28,1), activation='relu'))
+# Pooling Layer
+model.add(MaxPool2D(pool_size=(2,2)))
+# Flatten out 2D --> 1D - Prepare for DNN feed
+model.add(Flatten())
+# Dense Layer
+model.add(Dense(128,activation='relu'))
+# Output Layer - Classifier
+model.add(Dense(10,activation='softmax'))
+# Compile
+model.compile(loss='categorical_crossentropy',
+             optimizer='rmsprop',
+             metrics=['accuracy'])
+```
+* we get the summary of model `model.summary()`
+* we train our model `model.fit(x_train,y_cat_train,epochs=2)`
+* we evaluate `model.evaluate(x_test,y_cat_test)`
+* we build the reports
+```
+from sklearn.metrics import classification_report,confusion_matrix
+predictions = model.predict_classes(x_test)
+print(classification_report(predictions,y_test))
+```
+
+### Lecture 78 - Keras Convolution Neural Networks with CIFAR-10
+
 * 
