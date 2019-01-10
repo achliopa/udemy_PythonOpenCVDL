@@ -1970,4 +1970,44 @@ print(classification_report(predictions,y_test))
 
 ### Lecture 78 - Keras Convolution Neural Networks with CIFAR-10
 
+* we import the dataset `from keras.datasets import cifar10`
+* we load the dataset `(x_train,y_train),(x_test,y_test) = cifar10.load_data()`
+* we chexk shape `x_train.shape` (50000, 32, 32, 3) and `x_train[0].max()` so is unscaled
+* we normalize
+```
+x_train = x_train / x_train.max()
+x_test = x_test / x_test.max()
+```
+* we check labels the y are normal integer category forms. we ll hot encode them
+```
+from keras.utils.np_utils import to_categorical
+y_cat_test = to_categorical(y_test,10)
+y_cat_train = to_categorical(y_train,10)
+```
+we we build our model
+```
+from keras.models import Sequential
+from keras.layers import Dense,Conv2D,MaxPool2D,Flatten
+model = Sequential()
+model.add(Conv2D(32,kernel_size=(4,4),input_shape=(32,32,3),activation='relu'))
+model.add(MaxPool2D(pool_size=(2,2)))
+model.add(Conv2D(32,kernel_size=(4,4),input_shape=(32,32,3),activation='relu'))
+model.add(MaxPool2D(pool_size=(2,2)))
+model.add(Flatten())
+model.add(Dense(256,activation='relu'))
+model.add(Dense(10,activation='softmax'))
+model.compile(loss='categorical_crossentropy',
+             optimizer='rmsprop',
+             metrics=['accuracy'])
+```
+* we train for 2 epochs `model.fit(x_train,y_cat_train,verbose=1,epochs=2)`
+* we load a pretrained model
+```
+from keras.models import load_model
+new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Computer-Vision/cifar_10epochs.h5')
+```
+* we evaluate both. 2 epochs 0.59 acc 10eopchs 0.64 acc
+
+### Lecture 80 - Deep Learning on Custom Images - Part One
+
 * 
