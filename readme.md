@@ -2119,4 +2119,155 @@ new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Compu
 
 ### Lecture 84 - Introduction to YOLO v3
 
+* Let's learn about the state of the art image detection algorithm known as YOLO (You Only Look Once)
+* YOLO can view an image and draw bounding boxes over what it perceives as identified classes
+* In this lecture we will use version 3 of the YOLO Object Detection Algo, which is improved in terms of accuracy and speed
+* What makes YOLO different?
+	* prior detection systems repurpose classifiers or localizers to perform detection
+	* they apply the model to an image at multiple locations and scales. High scoring regions of the image are considered detections
+	* YOLO uses a totally different approach. Wea pply a single neural network to the the full image. This network divides the image into regions and predicts bounding boxes and probabilities for each region. these bounding boxes are weighted by the predicted probabilities
+* YOLO has several advantages over classifier-based systems
+* It looks at the whole image at test time so its predictions are informed by global context in the image
+* It also makes predictions with a single network evaluation unlike systems like R-CNN which require thousands for a single image. This makes it xtremely fast more than 1000x faster than R-CNN and 100x fastr that Fast R-CNN
+* In next version we will load an already trained YOLO model and see how we can use it with either image or video data
+* We've set up an easy to use notebook. we just have to download the model weights file
+
+### Lecture 86 - YOLO v3 with Python
+
+* Let's explore how to implement YOLO v3 with Python
+* we ll be using an implementation of YOLO v3 that has been trained on the COCO dataset
+* COCO dataset has 1.5million object instances with 80 different obj.categories
+* will use a YOLO v3 pretrained model to explore its capabilities
+* We need many many days and a high end computer to train such a model
+* this model is extremely complex 200MB h5 file
+* we will place the yolo.h5 in the DATA dir of the YOLO folder
+* we will use a ready notebook with easy to call functions
+* [COCO dataset](http://cocodataset.org/#home)
+* [COCO paper](https://arxiv.org/pdf/1405.0312.pdf)
+* [YOLO v3 paper](https://pjreddie.com/media/files/papers/YOLOv3.pdf)
+* we do the imports
+```
+import os
+import time
+import cv2
+import numpy as np
+from model.yolo_model import YOLO
+```
+* we do image processing to prepare the input image for the model (frame or image we provide)
+```
+def process_image(img):
+    """Resize, reduce and expand image.
+
+    # Argument:
+        img: original image.
+
+    # Returns
+        image: ndarray(64, 64, 3), processed image.
+    """
+    image = cv2.resize(img, (416, 416),
+                       interpolation=cv2.INTER_CUBIC)
+    image = np.array(image, dtype='float32')
+    image /= 255.
+    image = np.expand_dims(image, axis=0)
+
+    return image
+```
+* we get the classes from a text file (that we provide)
+```
+def get_classes(file):
+    """Get classes name.
+
+    # Argument:
+        file: classes name for database.
+
+    # Returns
+        class_names: List, classes name.
+
+    """
+    with open(file) as f:
+        class_names = f.readlines()
+    class_names = [c.strip() for c in class_names]
+
+    return class_names
+```
+* we have the draw function that will fraw on the picture based on teh model outputs
+```
+def draw(image, boxes, scores, classes, all_classes):
+    """Draw the boxes on the image.
+
+    # Argument:
+        image: original image.
+        boxes: ndarray, boxes of objects.
+        classes: ndarray, classes of objects.
+        scores: ndarray, scores of objects.
+        all_classes: all classes name.
+    """
+    for box, score, cl in zip(boxes, scores, classes):
+        x, y, w, h = box
+
+        top = max(0, np.floor(x + 0.5).astype(int))
+        left = max(0, np.floor(y + 0.5).astype(int))
+        right = min(image.shape[1], np.floor(x + w + 0.5).astype(int))
+        bottom = min(image.shape[0], np.floor(y + h + 0.5).astype(int))
+
+        cv2.rectangle(image, (top, left), (right, bottom), (255, 0, 0), 2)
+        cv2.putText(image, '{0} {1:.2f}'.format(all_classes[cl], score),
+                    (top, left - 6),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6, (0, 0, 255), 1,
+                    cv2.LINE_AA)
+
+        print('class: {0}, score: {1:.2f}'.format(all_classes[cl], score))
+        print('box coordinate x,y,w,h: {0}'.format(box))
+
+    print()
+```
+* we have two methods one for images and one for video. the take the image the model the classes and return or draw the results
+```
+def detect_image(image, yolo, all_classes):
+    """Use yolo v3 to detect images.
+
+    # Argument:
+        image: original image.
+        yolo: YOLO, yolo model.
+        all_classes: all classes name.
+
+    # Returns:
+        image: processed image.
+    """
+    pimage = process_image(image)
+
+    start = time.time()
+    boxes, classes, scores = yolo.predict(pimage, image.shape)
+    end = time.time()
+
+    print('time: {0:.2f}s'.format(end - start))
+
+    if boxes is not None:
+        draw(image, boxes, scores, classes, all_classes)
+
+    return image
+```
+* we load the model and the classes
+```
+yolo = YOLO(0.6, 0.5)
+file = 'data/coco_classes.txt'
+all_classes = get_classes(file)
+```
+* this runs '/model/yolo.py' which runs the model
+* the params 0.6 is obj threshold and 0.5 is nms thresh
+* lower threshold is more detections but also more prone to errors
+* code for detecting in image 
+```
+f = 'person.jpg'
+path = 'images/'+f
+image = cv2.imread(path)
+image = detect_image(image, yolo, all_classes)
+cv2.imwrite('images/res/' + f, image)
+```
+
+## Section 9 - Capstone Project
+
+### Lecture 87 - Introduction to Capstone Project
+
 * 
