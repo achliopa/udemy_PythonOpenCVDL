@@ -2116,3 +2116,7 @@ new_model = load_model('../../Computer-Vision-with-Python/06-Deep-Learning-Compu
 ### Lecture 82 - Deep Learning and Convolutional Neural Networks Assessment
 
 * 
+
+### Lecture 84 - Introduction to YOLO v3
+
+* 
