@@ -2270,4 +2270,51 @@ cv2.imwrite('images/res/' + f, image)
 
 ### Lecture 87 - Introduction to Capstone Project
 
+* We will be creating a program that can detect a hand, segment the hand and count the number of fingers being held up
+
+### Lecture 88 - Capstone Part One - Variables and Background function
+
+* first we will define some global variables
+* after. we will setup a function that updates a running average of the background values in an ROI
+* This will later on allow us to detect new objects (hand) in the ROI
+* in an empty frame we draw a ROI. we wait 60sec for the avg of the background in the roi ti be calculated. 
+* then we enter our hand. it can be detected by the change in the backgrouns.
+* we aply thresholding
+* Strategy for counting fingers
+	* grab the ROI
+	* calculate a running average background val for 60 frames of video
+	* once the avg value s found then the hand can enter the ROI
+	once the hand enters the ROI, we will ise a convex hull to draw a polygon around the hand
+	* we ll then calculate the center of the hand
+	* then using math we will calculate the center of the hand against the angle of outer points to infer the finger count
+* we start a new notebook
+* we do our imports
+```
+import cv2
+import  numpy as np
+from sklearn.metrics import pairwise
+```
+* we create our global variables
+```
+background = None
+accumulated_weight = 0.5
+roi_top = 20
+roi_bottom = 300
+roi_right = 300
+roi_left = 600
+```
+* our roi is preset
+* we add a function to calculate the background value in the roi
+```
+def calc_accum_avg(frame,accumulated_weight):
+    global background
+    if (background is None):
+        background = frame.copy()
+        return None
+    cv2.accumulateWeighted(frame,background,accumulated_weight)
+```
+* this method calculates the accumulated weight using a running average of passed frame (and the background).it updtates the global accumulated weight. the first time it sets the background equal to the frame
+
+### Lecture 89 - Capstone Part Two - Segmentation
+
 * 
